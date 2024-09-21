@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 const User = require("../models/User");
 const Token = require("../models/Token");
 
@@ -143,7 +144,7 @@ exports.forgot_password = async (req, res) => {
 
 function generateAndSendOtp(email, res) {
   const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
-  otpStore[email] = { otp, expiresAt: Date.now() + 300000 }; // OTP valid for 5 minutes
+  otpStore[email] = { otp, expiresAt: Date.now() + 300000 }; // OTP valid for 5 mins
 
   const mailOptions = {
     from: "your-email@gmail.com",
