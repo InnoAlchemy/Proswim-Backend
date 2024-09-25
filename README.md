@@ -9,8 +9,6 @@
 - [Running the Application](#running-the-application)
 - [Database Setup](#database-setup)
 - [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Prerequisites
 
@@ -130,10 +128,6 @@ The server will start on the port specified in your `.env` file (default is 3000
 
 - Access the application through the web browser at the specified URL.
 - Explore the different routes defined in the `routes` directory.
-
-```
-
-```
 
 ```
 
