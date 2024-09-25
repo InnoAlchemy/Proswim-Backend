@@ -14,7 +14,7 @@
 
 Before you begin, ensure you have met the following requirements:
 
-- Node.js installed on your machine (version X.X.X or higher)
+- Node.js installed on your machine
 - XAMPP installed for database management
 - Basic understanding of JavaScript and Express.js
 
@@ -44,13 +44,13 @@ D:\ProSwim
 
    Clone the repository to your local machine using:
 
-   ```bash
+   ```
    git clone https://github.com/InnoAlchemy/Proswim-Backend
    ```
 
 2. **Navigate to the Project Directory**
 
-   ```bash
+   ```
    cd ProSwim
    ```
 
@@ -58,7 +58,7 @@ D:\ProSwim
 
    Use npm to install the required dependencies:
 
-   ```bash
+   ```
    npm install
    ```
 
