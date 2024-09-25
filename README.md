@@ -1,4 +1,3 @@
-```markdown
 # ProSwim Project
 
 ## Table of Contents
@@ -24,6 +23,7 @@ Before you begin, ensure you have met the following requirements:
 ## Project Structure
 
 Here’s an overview of the project structure:
+
 ```
 
 D:\ProSwim
@@ -38,7 +38,7 @@ D:\ProSwim
 ├── routes # API route definitions
 └── server.js # Server initialization
 
-````
+```
 
 ## Installation
 
@@ -48,6 +48,8 @@ D:\ProSwim
 
    ```bash
    git clone https://github.com/InnoAlchemy/Proswim-Backend
+   ```
+
 ````
 
 2. **Navigate to the Project Directory**
@@ -134,3 +136,4 @@ The server will start on the port specified in your `.env` file (default is 3000
 ```
 
 ```
+````
