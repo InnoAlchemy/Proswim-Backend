@@ -3,7 +3,8 @@ const authRoutes = require("./routes/authRoutes");
 const homePageRoutes = require("./routes/homePageRoutes");
 const coreValuesRoutes = require("./routes/coreValuesRoutes");
 const albumsRoutes = require("./routes/albumRoutes");
-const albumFilesRoute = require("./routes/albumFilesRoutes");
+const albumFilesRoutes = require("./routes/albumFilesRoutes");
+const locationRoutes = require("./routes/locationRoutes");
 
 const app = express();
 
@@ -17,6 +18,8 @@ app.use("/core-values", coreValuesRoutes);
 
 app.use("/albums", albumsRoutes);
 
-app.use("/album-files", albumFilesRoute);
+app.use("/album-files", albumFilesRoutes);
+
+app.use("/locations", locationRoutes);
 
 module.exports = app;

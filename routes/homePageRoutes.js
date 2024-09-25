@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const homeController = require("../controllers/homeController");
+const homePageController = require("../controllers/homePageController");
+
 const learnHowtoSwimController = require("../controllers/learnHowtoSwimController");
+
+router.get("/", homePageController.getHomePage);
 
 router.get("/banners", homeController.getBanners);
 router.post("/banners", homeController.addBanners);
