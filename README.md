@@ -47,13 +47,13 @@ D:\ProSwim
 
    Clone the repository to your local machine using:
 
-   ```bash
-   git clone <repository-url>
+   ```
+   git clone https://github.com/InnoAlchemy/Proswim-Backend
 ````
 
 2. **Navigate to the Project Directory**
 
-   ```bash
+   ```
    cd ProSwim
    ```
 
@@ -61,7 +61,7 @@ D:\ProSwim
 
    Use npm to install the required dependencies:
 
-   ```bash
+   ```
    npm install
    ```
 
@@ -105,8 +105,8 @@ D:\ProSwim
 
 To start the application, run:
 
-```bash
-node server.js
+```
+nodemon server.js
 ```
 
 The server will start on the port specified in your `.env` file (default is 3000). You can access the application at `http://localhost:3000`.
@@ -125,7 +125,7 @@ The server will start on the port specified in your `.env` file (default is 3000
 
 3. **Import Database**
 
-Import datase from config/db.sql
+Import datase from `config/db.sql`
 
 ## Usage
 
