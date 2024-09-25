@@ -46,16 +46,27 @@ exports.getHomePage = async (req, res) => {
       id: album.id,
       title: album.title,
       description: album.description,
+      files: [],
     }));
 
-    const formattedAlbumFiles = formatItems(albumFiles, (albumFile) => ({
-      id: albumFile.id,
-      title: albumFile.title,
-      album_id: albumFile.album_id,
-      collection_number: albumFile.collection_number,
-      file: albumFile.file,
-      short_description: albumFile.short_description,
-    }));
+    const albumFilesByAlbumId = albumFiles.reduce((acc, albumFile) => {
+      const albumId = albumFile.album_id;
+      if (!acc[albumId]) {
+        acc[albumId] = [];
+      }
+      acc[albumId].push({
+        id: albumFile.id,
+        title: albumFile.title,
+        collection_number: albumFile.collection_number,
+        file: albumFile.file,
+        short_description: albumFile.short_description,
+      });
+      return acc;
+    }, {});
+
+    formattedAlbums.forEach((album) => {
+      album.files = albumFilesByAlbumId[album.id] || [];
+    });
 
     const formattedLocations = formatItems(locations, (location) => ({
       id: location.id,
@@ -69,13 +80,12 @@ exports.getHomePage = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Data retrieved successfully.",
+      message: "Home data retrieved successfully.",
       data: {
         banners: formattedBanners,
         "core-values": formattedCores,
         "learn-how-to-swim-buttons": formattedButtons,
         albums: formattedAlbums,
-        albumFiles: formattedAlbumFiles,
         locations: formattedLocations,
       },
     });
