@@ -63,10 +63,13 @@ exports.getHomePage = async (req, res) => {
       });
       return acc;
     }, {});
-
     formattedAlbums.forEach((album) => {
       album.files = albumFilesByAlbumId[album.id] || [];
     });
+
+    const filteredAlbums = formattedAlbums.filter(
+      (album) => album.files.length > 0
+    );
 
     const formattedLocations = formatItems(locations, (location) => ({
       id: location.id,
@@ -85,7 +88,7 @@ exports.getHomePage = async (req, res) => {
         banners: formattedBanners,
         "core-values": formattedCores,
         "learn-how-to-swim-buttons": formattedButtons,
-        albums: formattedAlbums,
+        albums: filteredAlbums,
         locations: formattedLocations,
       },
     });
