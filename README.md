@@ -50,8 +50,6 @@ D:\ProSwim
    git clone https://github.com/InnoAlchemy/Proswim-Backend
    ```
 
-````
-
 2. **Navigate to the Project Directory**
 
    ```bash
@@ -136,4 +134,7 @@ The server will start on the port specified in your `.env` file (default is 3000
 ```
 
 ```
-````
+
+```
+
+```
