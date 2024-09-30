@@ -7,6 +7,7 @@ const albumFilesRoutes = require("./routes/albumFilesRoutes");
 const locationRoutes = require("./routes/locationRoutes");
 const classCategoriesRoutes = require("./routes/classCategoriesRoutes");
 const classesRoutes = require("./routes/classesRoutes");
+const aboutUsRoutes = require("./routes/aboutUsRoutes");
 
 const app = express();
 
@@ -27,5 +28,7 @@ app.use("/locations", locationRoutes);
 app.use("/class-categories", classCategoriesRoutes);
 
 app.use("/classes", classesRoutes);
+
+app.use("/about-us", aboutUsRoutes);
 
 module.exports = app;
