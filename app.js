@@ -8,6 +8,7 @@ const locationRoutes = require("./routes/locationRoutes");
 const classCategoriesRoutes = require("./routes/classCategoriesRoutes");
 const classesRoutes = require("./routes/classesRoutes");
 const aboutUsRoutes = require("./routes/aboutUsRoutes");
+const learnTowSwimRoutes = require("./routes/learnToSwimRoutes");
 
 const app = express();
 
@@ -30,5 +31,7 @@ app.use("/class-categories", classCategoriesRoutes);
 app.use("/classes", classesRoutes);
 
 app.use("/about-us", aboutUsRoutes);
+
+app.use("/learn-to-swim", learnTowSwimRoutes);
 
 module.exports = app;
