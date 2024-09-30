@@ -18,7 +18,8 @@ class User {
         "INSERT INTO users (id, email, password, is_verified, role) VALUES (?,?,?,?,?)",
         [id, email, passwordHash, verified, role]
       );
-      return result.insertId;
+      console.log(result);
+      return result.affectedRows;
     } catch (err) {
       console.error(err);
     }

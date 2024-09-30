@@ -2,9 +2,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const User = require("../models/User");
-const Token = require("../models/Token");
-
-let otpStore = {};
+const OTP = require("../models/OTP");
+const { OAuth2Client } = require("google-auth-library");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -23,8 +22,21 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ message: "User already exists." });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    if (await User.createUser(id, email, hashedPassword, is_verified, role)) {
-      res.status(201).json({ message: "User registered successfully." });
+    const newUser = await User.createUser(
+      id,
+      email,
+      hashedPassword,
+      is_verified,
+      role
+    );
+    if (newUser) {
+      res.status(201).json({
+        success: true,
+        message: "User signed up successfully.",
+        data: {
+          userId: id,
+        },
+      });
     } else {
       res.status(500).json({ message: "User was not registered." });
     }
@@ -48,7 +60,13 @@ exports.signin = async (req, res) => {
       expiresIn: "24h",
     });
 
-    res.json({ token });
+    res.json({
+      success: true,
+      message: "User signed in successfully.",
+      data: {
+        token: token,
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error." });
   }
@@ -73,18 +91,24 @@ exports.google_signin = async (req, res) => {
     });
 
     const payload = ticket.getPayload();
-    const Id = payload["sub"];
+    const id = payload["sub"];
     const email = payload["email"];
 
-    const existingUser = await User.findByEmail(email);
+    let existingUser = await User.findByEmail(email);
     if (!existingUser) {
-      hashedPassword = null;
-      is_verified = 0;
-      role = "user";
-      await User.createUser(id, email, hashedPassword, is_verified, role);
+      const hashedPassword = null;
+      const is_verified = 0;
+      const role = "user";
+      existingUser = await User.createUser(
+        id,
+        email,
+        hashedPassword,
+        is_verified,
+        role
+      );
     }
 
-    const jwtToken = jwt.sign({ userId }, JWT_SECRET, {
+    const jwtToken = jwt.sign({ id: existingUser.id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
 
@@ -117,8 +141,8 @@ exports.forgot_password = async (req, res) => {
     });
     const expiryTime = Date.now() + 3600000; // 1 h
 
-    const createdToken = await Token.createToken(email, resetToken, expiryTime);
-    if (createdToken !== resetToken) {
+    const createdToken = await OTP.createOtp(email, resetToken, expiryTime);
+    if (!createdToken) {
       return res.status(500).json({ message: "Failed to create token" });
     }
 
@@ -132,10 +156,15 @@ exports.forgot_password = async (req, res) => {
 
     transporter.sendMail(mailOptions, (err) => {
       if (err) {
+        console.log(err);
+
         return res.status(500).json({ message: "Failed to send email" });
       }
 
-      res.status(200).json({ message: "Password reset link sent" });
+      res.status(200).json({
+        success: true,
+        message: "Password reset email sent successfully.",
+      });
     });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
@@ -144,27 +173,37 @@ exports.forgot_password = async (req, res) => {
 
 function generateAndSendOtp(email, res) {
   const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
-  otpStore[email] = { otp, expiresAt: Date.now() + 300000 }; // OTP valid for 5 mins
+  const expiresAt = new Date(Date.now() + 300000); // OTP valid for 5 minutes
 
-  const mailOptions = {
-    from: "your-email@gmail.com",
-    to: email,
-    subject: "Your OTP Code",
-    text: `Your OTP code is ${otp}`,
-  };
+  // Store OTP in the database
+  OTP.createOtp(email, otp, expiresAt)
+    .then(() => {
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "Your OTP Code",
+        text: `Your OTP code is ${otp}`,
+      };
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      return res.status(400).json({
-        error: true,
-        message: "Error sending OTP.",
+      transporter.sendMail(mailOptions, (error) => {
+        if (error) {
+          return res.status(400).json({
+            error: true,
+            message: "Error sending OTP.",
+          });
+        }
+        return res.status(200).json({
+          success: true,
+          message: "OTP sent successfully.",
+        });
       });
-    }
-    return res.status(200).json({
-      success: true,
-      message: "OTP sent successfully.",
+    })
+    .catch((err) => {
+      return res.status(500).json({
+        error: true,
+        message: "Failed to create OTP.",
+      });
     });
-  });
 }
 
 exports.send_otp = async (req, res) => {
@@ -190,25 +229,34 @@ exports.verify_otp = async (req, res) => {
     });
   }
 
-  const storedOtpData = otpStore[email];
+  try {
+    const storedOtpData = await OTP.findOtpByEmail(email);
 
-  if (!storedOtpData || Date.now() > storedOtpData.expiresAt) {
-    return res.status(400).json({
+    if (!storedOtpData || new Date() > new Date(storedOtpData.expires_at)) {
+      return res.status(400).json({
+        error: true,
+        message: "OTP expired or invalid.",
+      });
+    }
+
+    if (storedOtpData.otp !== otp) {
+      return res.status(400).json({
+        error: true,
+        message: "Invalid OTP.",
+      });
+    }
+
+    // OTP verified, so delete it
+    await OTP.deleteOtpByEmail(email);
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully.",
+    });
+  } catch (error) {
+    return res.status(500).json({
       error: true,
-      message: "OTP expired or invalid.",
+      message: "Server error.",
     });
   }
-
-  if (storedOtpData.otp !== otp) {
-    return res.status(400).json({
-      error: true,
-      message: "Invalid OTP.",
-    });
-  }
-
-  delete otpStore[email];
-  return res.status(200).json({
-    success: true,
-    message: "OTP verified successfully.",
-  });
 };
