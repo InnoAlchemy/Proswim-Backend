@@ -2,7 +2,6 @@ const express = require("express");
 const LearnToSwim = require("../models/LearnToSwim");
 const router = express.Router();
 
-// GET /learn-to-swim/levels
 exports.getLearnToSwimLevels = async (req, res) => {
   try {
     const levels = await LearnToSwim.getAllLevels();
@@ -20,12 +19,10 @@ exports.getLearnToSwimLevels = async (req, res) => {
   }
 };
 
-// POST /learn-to-swim/levels
 exports.addLearnToSwimLevel = async (req, res) => {
   try {
-    const { id, title, markdown_text, header_image, is_active } = req.body;
+    const { title, markdown_text, header_image, is_active } = req.body;
     const newLevel = await LearnToSwim.createLevel(
-      id,
       title,
       markdown_text,
       header_image,
@@ -45,7 +42,6 @@ exports.addLearnToSwimLevel = async (req, res) => {
   }
 };
 
-// PUT /learn-to-swim/levels/:id
 exports.updateLearnToSwimLevel = async (req, res) => {
   try {
     const { id } = req.params;
@@ -71,7 +67,6 @@ exports.updateLearnToSwimLevel = async (req, res) => {
   }
 };
 
-// DELETE /learn-to-swim/levels/:id
 exports.deleteLearnToSwimLevel = async (req, res) => {
   try {
     const { id } = req.params;
@@ -89,10 +84,27 @@ exports.deleteLearnToSwimLevel = async (req, res) => {
   }
 };
 
-// POST /learn-to-swim/sections
+exports.getLearnToSwimSections = async (req, res) => {
+  try {
+    const sections = await LearnToSwim.getLearnToSwimSections();
+    res.status(200).json({
+      success: true,
+      message: "Learn to Swim sections retrieved successfully.",
+      data: sections,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({
+      error: true,
+      message: "Error retrieving Learn to Swim sections.",
+    });
+  }
+};
+
 exports.addLearnToSwimSection = async (req, res) => {
   try {
     const {
+      id,
       level_id,
       title,
       markdown_text,
@@ -100,7 +112,9 @@ exports.addLearnToSwimSection = async (req, res) => {
       header_image,
       is_active,
     } = req.body;
+
     const newSection = await LearnToSwim.createSection(
+      id,
       level_id,
       title,
       markdown_text,
@@ -108,6 +122,7 @@ exports.addLearnToSwimSection = async (req, res) => {
       header_image,
       is_active
     );
+
     res.status(201).json({
       success: true,
       message: "Learn to Swim section created successfully.",
@@ -122,35 +137,6 @@ exports.addLearnToSwimSection = async (req, res) => {
   }
 };
 
-// GET /learn-to-swim/sections
-exports.getLearnToSwimSections = async (req, res) => {
-  try {
-    const sections = await LearnToSwim.getAllSections();
-
-    res.status(200).json({
-      success: true,
-      message: "Learn to Swim sections retrieved successfully.",
-      data: sections.map((section) => ({
-        level_id: section.level_id,
-        title: section.title,
-        markdown_text: section.markdown_text,
-        // Parse the JSON string to an object if necessary
-        list_of_content: JSON.parse(section.list_of_content), // Ensure this is an array
-        header_image: section.header_image,
-        is_active: section.is_active,
-      })),
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({
-      success: false,
-      message: "Error retrieving Learn to Swim sections.",
-      error: error.message,
-    });
-  }
-};
-
-// PUT /learn-to-swim/sections/:id
 exports.updateLearnToSwimSection = async (req, res) => {
   try {
     const { id } = req.params;
@@ -162,6 +148,7 @@ exports.updateLearnToSwimSection = async (req, res) => {
       header_image,
       is_active,
     } = req.body;
+
     const updatedSection = await LearnToSwim.updateSection(
       id,
       level_id,
@@ -171,6 +158,7 @@ exports.updateLearnToSwimSection = async (req, res) => {
       header_image,
       is_active
     );
+
     res.status(200).json({
       success: true,
       message: "Learn to Swim section updated successfully.",
@@ -185,7 +173,6 @@ exports.updateLearnToSwimSection = async (req, res) => {
   }
 };
 
-// DELETE /learn-to-swim/sections/:id
 exports.deleteLearnToSwimSection = async (req, res) => {
   try {
     const { id } = req.params;

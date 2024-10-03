@@ -12,6 +12,7 @@ exports.getClasses = async (req, res) => {
         markdown_text: class_object.markdown_text,
         is_active: class_object.is_active,
         button_text: class_object.button_text,
+        list_of_content: class_object.list_of_content || [],
       }));
 
       res.status(200).json({
@@ -34,38 +35,31 @@ exports.getClasses = async (req, res) => {
 
 exports.addClass = async (req, res) => {
   try {
-    const { id, class_category_id, markdown_text, is_active, button_text } =
-      req.body;
-
-    class_object = await Classes.createClass(
+    const {
       id,
       class_category_id,
       markdown_text,
       is_active,
-      button_text
+      button_text,
+      list_of_content,
+    } = req.body;
+
+    const class_object = await Classes.createClass(
+      id,
+      class_category_id,
+      markdown_text,
+      is_active,
+      button_text,
+      list_of_content
     );
-    console.log(class_object);
 
-    if (class_object) {
-      const formattedClasses = {
-        id: class_object.id,
-        class_category_id: class_object.class_category_id,
-        markdown_text: class_object.markdown_text,
-        is_active: class_object.is_active,
-        button_text: class_object.button_text,
-      };
+    const createdClass = await Classes.getClass(class_object.id);
 
-      res.status(200).json({
-        success: true,
-        message: "Class Created Successfully.",
-        data: formattedClasses,
-      });
-    } else {
-      res.status(404).json({
-        error: true,
-        message: "Class creating class_object.",
-      });
-    }
+    res.status(200).json({
+      success: true,
+      message: "Class Created Successfully.",
+      data: createdClass,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Server error." });
@@ -74,36 +68,31 @@ exports.addClass = async (req, res) => {
 
 exports.updateClass = async (req, res) => {
   try {
-    const { id, class_category_id, markdown_text, is_active, button_text } =
-      req.body;
-    console.log(req.body);
+    const {
+      id,
+      class_category_id,
+      markdown_text,
+      is_active,
+      button_text,
+      list_of_content,
+    } = req.body;
+
     const class_object = await Classes.updateClass(
       id,
       class_category_id,
       markdown_text,
       is_active,
-      button_text
+      button_text,
+      list_of_content
     );
-    if (class_object) {
-      const formattedClasses = {
-        id: class_object.id,
-        class_category_id: class_object.class_category_id,
-        markdown_text: class_object.markdown_text,
-        is_active: class_object.is_active,
-        button_text: class_object.button_text,
-      };
 
-      res.status(200).json({
-        success: true,
-        message: "Class Updated Successfully.",
-        data: formattedClasses,
-      });
-    } else {
-      res.status(404).json({
-        error: true,
-        message: "Error creating Class.",
-      });
-    }
+    const updatedClass = await Classes.getClass(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Class Updated Successfully.",
+      data: updatedClass,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Server error." });
@@ -124,7 +113,7 @@ exports.deleteClass = async (req, res) => {
     } else {
       res.status(404).json({
         error: true,
-        message: "Error deleting class",
+        message: "Error deleting class.",
       });
     }
   } catch (error) {

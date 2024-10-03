@@ -1,7 +1,7 @@
 const db = require("../config/db");
 
 class ClassCategory {
-  static async getAllClassCategories() {
+  static async getAllCategories() {
     try {
       const [rows] = await db.query("SELECT * FROM class_categories");
       return rows;
@@ -10,7 +10,7 @@ class ClassCategory {
     }
   }
 
-  static async getClassCategory(id) {
+  static async getCategory(id) {
     try {
       const [rows] = await db.query(
         "SELECT * FROM class_categories WHERE id = ?",
@@ -25,11 +25,12 @@ class ClassCategory {
     }
   }
 
-  static async createClassCategory(id, title, header_image, is_active) {
+  static async createCategory(id, title, description, header_image, is_active) {
     try {
+      console.log(is_active);
       await db.query(
-        "INSERT INTO class_categories (id, title, header_image, is_active) VALUES (?, ?, ?, ?)",
-        [id, title, header_image, is_active]
+        "INSERT INTO class_categories (id, title, description, header_image, is_active) VALUES (?, ?, ?, ?, ?)",
+        [id, title, description, header_image, is_active]
       );
       const [newClassCategory] = await db.query(
         "SELECT * FROM class_categories WHERE id = ?",
@@ -41,11 +42,11 @@ class ClassCategory {
     }
   }
 
-  static async updateClassCategory(id, title, header_image, is_active) {
+  static async updateCategory(id, title, description, header_image, is_active) {
     try {
       await db.query(
-        "UPDATE class_categories SET title = ?, header_image = ?, is_active = ? WHERE id = ?",
-        [title, header_image, is_active, id]
+        "UPDATE class_categories SET title = ?, description = ?, header_image = ?, is_active = ? WHERE id = ?",
+        [title, description, header_image, is_active, id]
       );
       const [updatedClassCategory] = await db.query(
         "SELECT * FROM class_categories WHERE id = ?",
@@ -57,7 +58,7 @@ class ClassCategory {
     }
   }
 
-  static async deleteClassCategory(id) {
+  static async deleteCategory(id) {
     try {
       await db.query("DELETE FROM class_categories WHERE id = ?", [id]);
       const [ClassCategory] = await db.query(
