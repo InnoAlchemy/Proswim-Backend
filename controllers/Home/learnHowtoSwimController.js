@@ -1,5 +1,5 @@
 const express = require("express");
-const LearnToSwim = require("../models/Buttons");
+const LearnToSwim = require("../../models/Buttons");
 const router = express.Router();
 
 exports.getlearnToSwimButtons = async (req, res) => {

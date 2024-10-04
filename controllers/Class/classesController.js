@@ -1,5 +1,5 @@
 const express = require("express");
-const Classes = require("../models/Classes");
+const Classes = require("../../models/Classes");
 const router = express.Router();
 
 exports.getClasses = async (req, res) => {

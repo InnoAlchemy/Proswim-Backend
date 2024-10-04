@@ -1,10 +1,10 @@
 const express = require("express");
-const Banner = require("../models/Banners");
-const Core = require("../models/Core");
-const LearnToSwim = require("../models/Buttons");
-const Album = require("../models/Albums");
-const AlbumFiles = require("../models/AlbumFiles");
-const Location = require("../models/Locations");
+const Banner = require("../../models/Banners");
+const Core = require("../../models/Core");
+const LearnToSwim = require("../../models/Buttons");
+const Album = require("../../models/Albums");
+const AlbumFiles = require("../../models/AlbumFiles");
+const Location = require("../../models/Locations");
 
 const formatItems = (items, formatFn) => (items || []).map(formatFn);
 

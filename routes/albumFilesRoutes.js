@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const albumFilesController = require("../controllers/albumFilesController");
+const albumFilesController = require("../controllers/Album Files/albumFilesController");
 
 router.get("/", albumFilesController.getAlbumFiles);
 router.post("/", albumFilesController.addAlbumFile);

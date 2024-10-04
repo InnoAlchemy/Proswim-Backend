@@ -1,5 +1,5 @@
 const express = require("express");
-const Core = require("../models/Core");
+const Core = require("../../models/Core");
 const router = express.Router();
 
 exports.getCores = async (req, res) => {

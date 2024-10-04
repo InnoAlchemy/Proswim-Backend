@@ -1,5 +1,5 @@
 const express = require("express");
-const Banner = require("../models/Banners");
+const Banner = require("../../models/Banners");
 const router = express.Router();
 
 exports.getBanners = async (req, res) => {

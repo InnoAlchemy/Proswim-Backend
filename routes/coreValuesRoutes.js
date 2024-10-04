@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const coreValuesController = require("../controllers/coreValuesController");
+const coreValuesController = require("../controllers/Home/coreValuesController");
 
 router.get("/", coreValuesController.getCores);
 router.post("/", coreValuesController.addCores);

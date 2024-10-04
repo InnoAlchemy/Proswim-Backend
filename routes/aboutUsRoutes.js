@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const aboutUsController = require("../controllers/aboutUsController");
+const aboutUsController = require("../controllers/About Us/aboutUsController");
 
 router.get("/categories", aboutUsController.getAboutUsCategories);
 router.post("/categories", aboutUsController.addAboutUsCategory);

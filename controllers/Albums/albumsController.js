@@ -1,5 +1,5 @@
 const express = require("express");
-const Album = require("../models/Albums");
+const Album = require("../../models/Albums");
 const router = express.Router();
 
 exports.getAlbums = async (req, res) => {

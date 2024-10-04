@@ -1,8 +1,8 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-const User = require("../models/User");
-const OTP = require("../models/OTP");
+const User = require("../../models/User");
+const OTP = require("../../models/OTP");
 const { OAuth2Client } = require("google-auth-library");
 
 const transporter = nodemailer.createTransport({

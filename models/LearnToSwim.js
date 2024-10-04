@@ -7,17 +7,18 @@ class LearnToSwim {
     return results;
   }
 
-  static async createLevel(title, markdown_text, header_image, is_active) {
+  static async createLevel(id, title, markdown_text, header_image, is_active) {
     const query =
-      "INSERT INTO swim_levels (title, markdown_text, header_image, is_active) VALUES (?, ?, ?, ?)";
+      "INSERT INTO swim_levels (id, title, markdown_text, header_image, is_active) VALUES (?, ?, ?, ?, ?)";
     const [result] = await db.execute(query, [
+      id,
       title,
       markdown_text,
       header_image,
       is_active,
     ]);
     return {
-      id: result.insertId,
+      id,
       title,
       markdown_text,
       header_image,

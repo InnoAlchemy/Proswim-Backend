@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const homeController = require("../controllers/homeController");
-const homePageController = require("../controllers/homePageController");
+const homeController = require("../controllers/Home/homeController");
+const homePageController = require("../controllers/Pages/homePageController");
 
-const learnHowtoSwimController = require("../controllers/learnHowtoSwimController");
+const learnHowtoSwimController = require("../controllers/Home/learnHowtoSwimController");
 
 router.get("/", homePageController.getHomePage);
 

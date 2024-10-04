@@ -1,5 +1,5 @@
 const express = require("express");
-const AboutUs = require("../models/AboutUs");
+const AboutUs = require("../../models/AboutUs");
 const router = express.Router();
 
 exports.getAboutUsCategories = async (req, res) => {

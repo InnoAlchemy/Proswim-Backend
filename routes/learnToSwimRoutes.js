@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const learnToSwimController = require("../controllers/learnToSwimController");
+const learnToSwimController = require("../controllers/Learn to Swim/learnToSwimController");
 
 // Routes for managing Learn to Swim levels
 router.get("/levels", learnToSwimController.getLearnToSwimLevels); // Get Learn to Swim Levels

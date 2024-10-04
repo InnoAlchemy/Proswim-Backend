@@ -1,5 +1,5 @@
 const express = require("express");
-const LearnToSwim = require("../models/LearnToSwim");
+const LearnToSwim = require("../../models/LearnToSwim");
 const router = express.Router();
 
 exports.getLearnToSwimLevels = async (req, res) => {
@@ -21,8 +21,9 @@ exports.getLearnToSwimLevels = async (req, res) => {
 
 exports.addLearnToSwimLevel = async (req, res) => {
   try {
-    const { title, markdown_text, header_image, is_active } = req.body;
+    const { id, title, markdown_text, header_image, is_active } = req.body;
     const newLevel = await LearnToSwim.createLevel(
+      id,
       title,
       markdown_text,
       header_image,
