@@ -2,7 +2,6 @@ const db = require("../../config/db");
 
 class Order {
   static async createOrder(
-    id,
     user_id,
     product_id,
     quantity,
@@ -12,12 +11,12 @@ class Order {
   ) {
     try {
       await db.query(
-        "INSERT INTO orders (id, user_id, product_id, quantity, total_price, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [id, user_id, product_id, quantity, total_price, status, created_at]
+        "INSERT INTO orders (user_id, product_id, quantity, total_price, status, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+        [user_id, product_id, quantity, total_price, status, created_at]
       );
-      const [newOrder] = await db.query("SELECT * FROM orders WHERE id = ?", [
-        id,
-      ]);
+      const [newOrder] = await db.query(
+        "SELECT * FROM orders WHERE id = LAST_INSERT_ID()"
+      );
       return newOrder[0];
     } catch (err) {
       throw err;

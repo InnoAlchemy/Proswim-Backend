@@ -22,15 +22,15 @@ class Sport {
     }
   }
 
-  static async createSport(id, title, is_active) {
+  static async createSport(title, is_active) {
     try {
-      await db.query(
-        "INSERT INTO sports (id, title, is_active) VALUES (?, ?, ?)",
-        [id, title, is_active]
-      );
-      const [newSport] = await db.query("SELECT * FROM sports WHERE id = ?", [
-        id,
+      await db.query("INSERT INTO sports (title, is_active) VALUES (?, ?)", [
+        title,
+        is_active,
       ]);
+      const [newSport] = await db.query(
+        "SELECT * FROM sports WHERE id = LAST_INSERT_ID()"
+      );
       return newSport[0];
     } catch (err) {
       throw err;

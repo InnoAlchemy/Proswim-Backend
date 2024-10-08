@@ -25,7 +25,6 @@ class Album {
   }
 
   static async createAlbumFile(
-    id,
     title,
     album_id,
     collection_number,
@@ -34,12 +33,11 @@ class Album {
   ) {
     try {
       const result = await db.query(
-        "INSERT INTO album_files (id, title, album_id, collection_number, file, short_description) VALUES (?, ?, ?, ?, ?, ?)",
-        [id, title, album_id, collection_number, file, short_description]
+        "INSERT INTO album_files (title, album_id, collection_number, file, short_description) VALUES (?, ?, ?, ?, ?)",
+        [title, album_id, collection_number, file, short_description]
       );
       const [newAlbumFile] = await db.query(
-        "SELECT * FROM album_files WHERE id = ?",
-        [id]
+        "SELECT * FROM album_files WHERE id = LAST_INSERT_ID()"
       );
       return newAlbumFile[0];
     } catch (err) {

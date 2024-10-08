@@ -36,56 +36,48 @@ exports.getClassCategories = async (req, res) => {
 
 exports.addClassCategory = async (req, res) => {
   try {
-    const { id, title, description, header_image, is_active } = req.body;
-    console.log(id, title, description, header_image, is_active);
+    const { title, description, is_active } = req.body;
+    const header_image = req.file ? req.file.filename : null;
 
-    await ClassCategories.createCategory(
-      id,
+    if (!header_image) {
+      return res.status(400).json({
+        success: false,
+        message: "Header image file is required.",
+      });
+    }
+
+    const host = req.protocol + "://" + req.get("host");
+    const data = await ClassCategories.createCategory(
       title,
       description,
-      header_image,
+      `${host}/uploads/${header_image}`,
       is_active
     );
 
-    const classCategory = await ClassCategories.getCategory(id);
-    if (classCategory) {
-      const formattedClassCategory = {
-        id: classCategory.id,
-        title: classCategory.title,
-        description: classCategory.description,
-        header_image: classCategory.header_image,
-        is_active: classCategory.is_active,
-      };
-
-      res.status(201).json({
-        success: true,
-        message: "Class category created successfully.",
-        data: formattedClassCategory,
-      });
-    } else {
-      res.status(404).json({
-        error: true,
-        message: "Error creating class category.",
-      });
-    }
+    res.status(201).json({
+      success: true,
+      message: "Class category created successfully.",
+      data: [data],
+    });
   } catch (error) {
     console.log(error);
-    res
-      .status(500)
-      .json({ error: true, message: "Error creating class category." });
+    res.status(500).json({
+      error: true,
+      message: "Error creating class category.",
+    });
   }
 };
 
 exports.updateClassCategory = async (req, res) => {
   try {
-    const { id, title, description, header_image, is_active } = req.body;
-    console.log(req.body);
+    const { id, title, description, is_active } = req.body;
+    const header_image = req.file ? req.file.filename : null;
+
+    const classCategoryData = { title, description, header_image, is_active };
+
     const classCategory = await ClassCategories.updateCategory(
       id,
-      title,
-      description,
-      header_image,
-      is_active
+      classCategoryData
     );
     if (classCategory) {
       const formattedClassCategory = {
@@ -109,12 +101,12 @@ exports.updateClassCategory = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(500)
-      .json({ error: true, message: "Error updating class category." });
+    res.status(500).json({
+      error: true,
+      message: "Error updating class category.",
+    });
   }
 };
-
 exports.deleteClassCategory = async (req, res) => {
   try {
     const id = req.params.id;

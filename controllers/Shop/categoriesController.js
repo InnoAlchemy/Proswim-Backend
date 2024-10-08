@@ -19,13 +19,12 @@ exports.getCategories = async (req, res) => {
 
 exports.addCategory = async (req, res) => {
   try {
-    const { id, title, is_active } = req.body;
-    await Category.createCategory(id, title, is_active);
-    const category = await Category.getCategory(id);
+    const { title, is_active } = req.body;
+    const data = await Category.createCategory(title, is_active);
     res.status(201).json({
       success: true,
       message: "Category created successfully.",
-      data: category,
+      data: [data],
     });
   } catch (error) {
     console.log(error);

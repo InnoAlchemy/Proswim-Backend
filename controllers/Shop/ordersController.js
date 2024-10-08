@@ -2,17 +2,9 @@ const Order = require("../../models/Shop/Order");
 
 exports.createOrder = async (req, res) => {
   try {
-    const {
-      id,
-      user_id,
-      product_id,
-      quantity,
-      total_price,
-      status,
-      created_at,
-    } = req.body;
-    await Order.createOrder(
-      id,
+    const { user_id, product_id, quantity, total_price, status, created_at } =
+      req.body;
+    const data = await Order.createOrder(
       user_id,
       product_id,
       quantity,
@@ -20,11 +12,10 @@ exports.createOrder = async (req, res) => {
       status,
       created_at
     );
-    const order = await Order.getOrder(id);
     res.status(201).json({
       success: true,
       message: "Order created successfully.",
-      data: order,
+      data: [data],
     });
   } catch (error) {
     console.log(error);

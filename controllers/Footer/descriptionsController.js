@@ -5,23 +5,20 @@ const Description = require("../../models/Description"); // Assuming you have a 
 exports.getDescription = async (req, res) => {
   try {
     const description = await Description.getDescription();
-    if (description) {
-      res.status(200).json({
-        success: true,
-        message: "Description retrieved successfully.",
-        data: description,
-      });
-    } else {
-      res.status(404).json({
-        error: true,
-        message: "No description found.",
-      });
-    }
+    const data = description.map((description) => ({
+      id: description.id,
+      text: description.text,
+    }));
+    res.status(200).json({
+      success: true,
+      message: "Description retrieved successfully.",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
-    res.status(500).json({
+    res.status(400).json({
       error: true,
-      message: "Error retrieving description.",
+      message: "Error creating description.",
     });
   }
 };

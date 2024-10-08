@@ -35,8 +35,9 @@ exports.getClasses = async (req, res) => {
 
 exports.addClass = async (req, res) => {
   try {
+    const image = req.file ? req.file.filename : null;
+
     const {
-      id,
       class_category_id,
       markdown_text,
       is_active,
@@ -44,25 +45,27 @@ exports.addClass = async (req, res) => {
       list_of_content,
     } = req.body;
 
-    const class_object = await Classes.createClass(
-      id,
+    list_of_content.image = image;
+
+    const data = await Classes.createClass(
       class_category_id,
       markdown_text,
       is_active,
       button_text,
       list_of_content
     );
-
-    const createdClass = await Classes.getClass(class_object.id);
-
     res.status(200).json({
       success: true,
       message: "Class Created Successfully.",
-      data: createdClass,
+      data: [data],
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Server error." });
+
+    res.status(404).json({
+      error: true,
+      message: "Error creating class category.",
+    });
   }
 };
 
@@ -76,6 +79,9 @@ exports.updateClass = async (req, res) => {
       button_text,
       list_of_content,
     } = req.body;
+
+    const image = req.file ? req.file.filename : null;
+    list_of_content.image = image;
 
     const class_object = await Classes.updateClass(
       id,

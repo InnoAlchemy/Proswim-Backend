@@ -25,7 +25,6 @@ class Location {
   }
 
   static async createLocation(
-    id,
     image,
     supervisor,
     phone_number,
@@ -35,12 +34,12 @@ class Location {
   ) {
     try {
       const result = await db.query(
-        "INSERT INTO locations (id, image, supervisor, phone_number, website, info, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [id, image, supervisor, phone_number, website, info, is_active]
+        "INSERT INTO locations (image, supervisor, phone_number, website, info, is_active) VALUES ( ?, ?, ?, ?, ?, ?)",
+        [image, supervisor, phone_number, website, info, is_active]
       );
+
       const [newLocation] = await db.query(
-        "SELECT * FROM locations WHERE id = ?",
-        [id]
+        "SELECT * FROM locations WHERE id = LAST_INSERT_ID()"
       );
       return newLocation[0];
     } catch (err) {
@@ -50,19 +49,25 @@ class Location {
 
   static async updateLocation(
     id,
-    image,
-    supervisor,
-    phone_number,
-    website,
-    info,
-    is_active
+    { image, supervisor, phone_number, website, info, is_active }
   ) {
     try {
-      const res = await db.query(
-        "UPDATE locations SET image = ?, supervisor = ? , phone_number = ?, website = ?, info = ?, is_active = ? WHERE id = ?",
-        [image, supervisor, phone_number, website, info, is_active, id]
-      );
+      let query =
+        "UPDATE locations SET supervisor = ?, phone_number = ?, website = ?, info = ?, is_active = ?";
+      let params = [supervisor, phone_number, website, info, is_active];
+
+      if (image !== null) {
+        query =
+          "UPDATE locations SET image = ?, supervisor = ?, phone_number = ?, website = ?, info = ?, is_active = ?";
+        params.unshift(image);
+      }
+
+      query += " WHERE id = ?";
+      params.push(id);
+
+      const res = await db.query(query, params);
       console.log(res);
+
       const [updatedLocation] = await db.query(
         "SELECT * FROM locations WHERE id = ?",
         [id]

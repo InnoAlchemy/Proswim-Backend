@@ -25,16 +25,14 @@ class ClassCategory {
     }
   }
 
-  static async createCategory(id, title, description, header_image, is_active) {
+  static async createCategory(title, description, header_image, is_active) {
     try {
-      console.log(is_active);
       await db.query(
-        "INSERT INTO class_categories (id, title, description, header_image, is_active) VALUES (?, ?, ?, ?, ?)",
-        [id, title, description, header_image, is_active]
+        "INSERT INTO class_categories (title, description, header_image, is_active) VALUES (?, ?, ?, ?)",
+        [title, description, header_image, is_active]
       );
       const [newClassCategory] = await db.query(
-        "SELECT * FROM class_categories WHERE id = ?",
-        [id]
+        "SELECT * FROM class_categories WHERE id = LAST_INSERT_ID()"
       );
       return newClassCategory[0];
     } catch (err) {
@@ -44,10 +42,17 @@ class ClassCategory {
 
   static async updateCategory(id, title, description, header_image, is_active) {
     try {
-      await db.query(
-        "UPDATE class_categories SET title = ?, description = ?, header_image = ?, is_active = ? WHERE id = ?",
-        [title, description, header_image, is_active, id]
-      );
+      let query =
+        "UPDATE class_categories SET title = ?, description = ?, is_active = ? WHERE id = ?";
+      let params = [title, description, is_active, id];
+
+      if (header_image !== null) {
+        query =
+          "UPDATE class_categories SET title = ?, description = ?, header_image = ?, is_active = ? WHERE id = ?";
+        params = [title, description, header_image, is_active, id];
+      }
+
+      await db.query(query, params);
       const [updatedClassCategory] = await db.query(
         "SELECT * FROM class_categories WHERE id = ?",
         [id]

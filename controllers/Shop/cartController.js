@@ -20,13 +20,12 @@ exports.getCartItems = async (req, res) => {
 
 exports.addCartItem = async (req, res) => {
   try {
-    const { id, product_id, user_id, quantity, price } = req.body;
-    await Cart.addCartItem(id, product_id, user_id, quantity, price);
-    const cartItem = await Cart.getCartItem(id);
+    const { product_id, user_id, quantity, price } = req.body;
+    const data = await Cart.addCartItem(product_id, user_id, quantity, price);
     res.status(201).json({
       success: true,
       message: "Product added to cart successfully.",
-      data: cartItem,
+      data: [data],
     });
   } catch (error) {
     console.log(error);

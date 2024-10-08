@@ -22,15 +22,15 @@ class Album {
     }
   }
 
-  static async createAlbum(id, title, description) {
+  static async createAlbum(title, description) {
     try {
       const result = await db.query(
-        "INSERT INTO albums (id, title, description) VALUES (?, ?, ?)",
-        [id, title, description]
+        "INSERT INTO albums (title, description) VALUES ( ?, ?)",
+        [title, description]
       );
-      const [newAlbum] = await db.query("SELECT * FROM albums WHERE id = ?", [
-        id,
-      ]);
+      const [newAlbum] = await db.query(
+        "SELECT * FROM albums WHERE id = LAST_INSERT_ID()"
+      );
       return newAlbum[0];
     } catch (err) {
       throw err;

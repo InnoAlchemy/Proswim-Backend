@@ -7,35 +7,38 @@ class LearnToSwim {
     return results;
   }
 
-  static async createLevel(id, title, markdown_text, header_image, is_active) {
+  static async createLevel(title, markdown_text, header_image, is_active) {
     const query =
-      "INSERT INTO swim_levels (id, title, markdown_text, header_image, is_active) VALUES (?, ?, ?, ?, ?)";
+      "INSERT INTO swim_levels (title, markdown_text, header_image, is_active) VALUES (?, ?, ?, ?)";
     const [result] = await db.execute(query, [
-      id,
       title,
       markdown_text,
       header_image,
       is_active,
     ]);
-    return {
-      id,
-      title,
-      markdown_text,
-      header_image,
-      is_active,
-    };
+    const [newLevel] = await db.query(
+      "SELECT * FROM swim_levels WHERE id=LAST_INSERT_ID()"
+    );
+    return newLevel[0];
+  }
+  catch(err) {
+    throw err;
   }
 
   static async updateLevel(id, title, markdown_text, header_image, is_active) {
-    const query =
-      "UPDATE swim_levels SET title = ?, markdown_text = ?, header_image = ?, is_active = ? WHERE id = ?";
-    await db.execute(query, [
-      title,
-      markdown_text,
-      header_image,
-      is_active,
-      id,
-    ]);
+    let query =
+      "UPDATE swim_levels SET title = ?, markdown_text = ?, is_active = ?";
+    const params = [title, markdown_text, is_active];
+
+    if (header_image !== null) {
+      query += ", header_image = ?";
+      params.push(header_image);
+    }
+
+    query += " WHERE id = ?";
+    params.push(id);
+
+    await db.execute(query, params);
     return {
       id,
       title,
@@ -133,7 +136,6 @@ class LearnToSwim {
   }
 
   static async createSection(
-    id,
     level_id,
     title,
     markdown_text,
@@ -143,15 +145,16 @@ class LearnToSwim {
   ) {
     try {
       const query =
-        "INSERT INTO swim_sections (id ,level_id, title, markdown_text, header_image, is_active) VALUES (?, ?, ?, ?, ?, ?)";
+        "INSERT INTO swim_sections (level_id, title, markdown_text, header_image, is_active) VALUES ( ?, ?, ?, ?, ?)";
       const [result] = await db.execute(query, [
-        id,
         level_id,
         title,
         markdown_text,
         header_image,
         is_active,
       ]);
+
+      const id = result.insertId; // Fixed insertId reference
 
       if (list_of_content && list_of_content.length > 0) {
         const contentPromises = list_of_content.map((content) => {
@@ -186,16 +189,19 @@ class LearnToSwim {
     header_image,
     is_active
   ) {
-    const query =
-      "UPDATE swim_sections SET level_id = ?, title = ?, markdown_text = ?, header_image = ?, is_active = ? WHERE id = ?";
-    await db.execute(query, [
-      level_id,
-      title,
-      markdown_text,
-      header_image,
-      is_active,
-      id,
-    ]);
+    let query =
+      "UPDATE swim_sections SET level_id = ?, title = ?, markdown_text = ?, is_active = ?";
+    const params = [level_id, title, markdown_text, is_active];
+
+    if (header_image !== null) {
+      query += ", header_image = ?";
+      params.push(header_image);
+    }
+
+    query += " WHERE id = ?";
+    params.push(id);
+
+    await db.execute(query, params);
 
     const deleteContentQuery = "DELETE FROM swim_content WHERE section_id = ?";
     await db.execute(deleteContentQuery, [id]);

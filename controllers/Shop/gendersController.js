@@ -19,13 +19,12 @@ exports.getGenders = async (req, res) => {
 
 exports.addGender = async (req, res) => {
   try {
-    const { id, title, is_active } = req.body;
-    await Gender.createGender(id, title, is_active);
-    const gender = await Gender.getGender(id);
+    const { title, is_active } = req.body;
+    const data = await Gender.createGender(title, is_active);
     res.status(201).json({
       success: true,
       message: "Gender created successfully.",
-      data: gender,
+      data: [data],
     });
   } catch (error) {
     console.log(error);

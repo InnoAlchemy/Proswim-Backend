@@ -3,16 +3,20 @@ const Payment = require("../../models/Shop/Payment");
 const router = express.Router();
 exports.createPayment = async (req, res) => {
   try {
-    const { id, user_id, product_id, payment_info, amount } = req.body;
+    const { user_id, product_id, payment_info, amount } = req.body;
 
-    await Payment.createPayment(id, user_id, product_id, payment_info, amount);
+    const data = await Payment.createPayment(
+      user_id,
+      product_id,
+      payment_info,
+      amount
+    );
 
-    const payment = await Payment.getPayment(id);
-    if (payment) {
+    if (data) {
       res.status(201).json({
         success: true,
         message: "Payment created successfully.",
-        data: payment,
+        data: [data],
       });
     } else {
       res.status(400).json({

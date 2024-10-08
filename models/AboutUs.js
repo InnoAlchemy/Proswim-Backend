@@ -34,12 +34,11 @@ class AboutUs {
   ) {
     try {
       const result = await db.query(
-        "INSERT INTO about_us_categories (id, title, markdown_text, header_image, is_active) VALUES (?, ?, ?, ?, ?)",
-        [id, title, markdown_text, header_image, is_active]
+        "INSERT INTO about_us_categories (title, markdown_text, header_image, is_active) VALUES (?, ?, ?, ?, ?)",
+        [title, markdown_text, header_image, is_active]
       );
       const [newCategory] = await db.query(
-        "SELECT * FROM about_us_categories WHERE id = ?",
-        [id]
+        "SELECT * FROM about_us_categories WHERE id = LAST_INSERT_ID()"
       );
       return newCategory[0];
     } catch (err) {
@@ -55,10 +54,19 @@ class AboutUs {
     is_active
   ) {
     try {
-      const res = await db.query(
-        "UPDATE about_us_categories SET title = ?, markdown_text = ?, header_image = ?, is_active = ? WHERE id = ?",
-        [title, markdown_text, header_image, is_active, id]
-      );
+      let query =
+        "UPDATE about_us_categories SET title = ?, markdown_text = ?, is_active = ?";
+      let params = [title, markdown_text, is_active];
+
+      if (header_image !== null) {
+        query += ", header_image = ?";
+        params.push(header_image);
+      }
+
+      query += " WHERE id = ?";
+      params.push(id);
+
+      const res = await db.query(query, params);
       console.log(res);
       const [updatedCategory] = await db.query(
         "SELECT * FROM about_us_categories WHERE id = ?",
@@ -109,28 +117,35 @@ class AboutUs {
     }
   }
 
-  static async createInfo(id, category_id, markdown_text, image, type) {
+  static async createInfo(category_id, markdown_text, image, type) {
     try {
       const result = await db.query(
-        "INSERT INTO about_us_information (id, category_id, markdown_text, image, type) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO about_us_information (category_id, markdown_text, image, type) VALUES (?, ?, ?, ?)",
         [id, category_id, markdown_text, image, type]
       );
       const [newInfo] = await db.query(
-        "SELECT * FROM about_us_information WHERE id = ?",
-        [id]
+        "SELECT * FROM about_us_information WHERE id = LAST_INSERT_ID()"
       );
       return newInfo[0];
     } catch (err) {
       throw err;
     }
   }
-
   static async updateInfo(id, category_id, markdown_text, image, type) {
     try {
-      const res = await db.query(
-        "UPDATE about_us_information SET category_id = ?, markdown_text = ?, image = ?, type = ? WHERE id = ?",
-        [category_id, markdown_text, image, type, id]
-      );
+      let query =
+        "UPDATE about_us_information SET category_id = ?, markdown_text = ?, type = ?";
+      let params = [category_id, markdown_text, type];
+
+      if (image !== null) {
+        query += ", image = ?";
+        params.push(image);
+      }
+
+      query += " WHERE id = ?";
+      params.push(id);
+
+      const res = await db.query(query, params);
       console.log(res);
       const [updatedInfo] = await db.query(
         "SELECT * FROM about_us_information WHERE id = ?",

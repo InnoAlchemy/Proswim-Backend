@@ -5,9 +5,76 @@ const router = express.Router();
 exports.getLocations = async (req, res) => {
   try {
     const locations = await Location.getAllLocations();
-    console.log(locations);
-    if (locations.length > 0) {
-      const formattedLocations = locations.map((location) => ({
+    const formattedLocations = locations.map((location) => ({
+      id: location.id,
+      image: location.image,
+      supervisor: location.supervisor,
+      phone_number: location.phone_number,
+      website: location.website,
+      info: location.info,
+      is_active: location.is_active,
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: "Locations retrieved successfully.",
+      data: formattedLocations,
+    });
+  } catch (error) {
+    res.status(404).json({
+      error: true,
+      message: "Error retrieving Locations.",
+    });
+  }
+};
+
+//
+exports.addLocations = async (req, res) => {
+  try {
+    const { supervisor, phone_number, website, info, is_active } = req.body;
+    const image = req.file ? req.file.filename : null;
+    const data = await Location.createLocation(
+      image,
+      supervisor,
+      phone_number,
+      website,
+      info,
+      is_active
+    );
+    res.status(200).json({
+      success: true,
+      message: "Location created successfully.",
+      data: [data],
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({
+      success: false,
+      message: "Error creating location.",
+    });
+  }
+};
+
+exports.updateLocations = async (req, res) => {
+  try {
+    const { supervisor, phone_number, website, info, is_active } = req.body;
+    const { id } = req.params;
+    const image = req.file ? req.file.filename : null;
+
+    const locationData = {
+      image,
+      supervisor,
+      phone_number,
+      website,
+      info,
+      is_active,
+    };
+
+    const location = await Location.updateLocation(id, locationData);
+    res.status(200).json({
+      success: true,
+      message: "Location updated successfully.",
+      data: {
         id: location.id,
         image: location.image,
         supervisor: location.supervisor,
@@ -15,114 +82,15 @@ exports.getLocations = async (req, res) => {
         website: location.website,
         info: location.info,
         is_active: location.is_active,
-      }));
-
-      res.status(200).json({
-        success: true,
-        message: "Locations retrieved successfully.",
-        data: formattedLocations,
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        message: "No locations found.",
-        data: [],
-      });
-    }
+      },
+    });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server error." });
+    res.status(404).json({
+      error: true,
+      message: "Error updating location.",
+    });
   }
 };
-
-//
-
-exports.addLocations = async (req, res) => {
-  try {
-    const { id, image, supervisor, phone_number, website, info, is_active } =
-      req.body;
-
-    await Location.createLocation(
-      id,
-      image,
-      supervisor,
-      phone_number,
-      website,
-      info,
-      is_active
-    );
-
-    const location = await Location.getLocation(id);
-    if (location) {
-      const formattedLocations = {
-        id,
-        image,
-        supervisor,
-        phone_number,
-        website,
-        info,
-        is_active,
-      };
-
-      res.status(200).json({
-        success: true,
-        message: "Location Created Succefully.",
-        data: formattedLocations,
-      });
-    } else {
-      res.status(404).json({
-        error: true,
-        message: "Error creating location.",
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server error." });
-  }
-};
-//
-exports.updateLocations = async (req, res) => {
-  try {
-    const { id, image, supervisor, phone_number, website, info, is_active } =
-      req.body;
-    console.log(req.body);
-    const location = await Location.updateLocation(
-      id,
-      image,
-      supervisor,
-      phone_number,
-      website,
-      info,
-      is_active
-    );
-    if (location) {
-      const formattedLocations = {
-        id,
-        image,
-        supervisor,
-        phone_number,
-        website,
-        info,
-        is_active,
-      };
-
-      res.status(200).json({
-        success: true,
-        message: "Location Updated Succefully.",
-        data: formattedLocations,
-      });
-    } else {
-      res.status(404).json({
-        error: true,
-        message: "Error creating location.",
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server error." });
-  }
-};
-//
 
 exports.deleteLocations = async (req, res) => {
   try {

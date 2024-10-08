@@ -34,7 +34,8 @@ exports.getAboutUsCategories = async (req, res) => {
 
 exports.addAboutUsCategory = async (req, res) => {
   try {
-    const { id, title, markdown_text, header_image, is_active } = req.body;
+    const { id, title, markdown_text, is_active } = req.body;
+    const header_image = req.file ? req.file.filename : null;
 
     await AboutUs.createCategory(
       id,
@@ -73,8 +74,9 @@ exports.addAboutUsCategory = async (req, res) => {
 
 exports.updateAboutUsCategory = async (req, res) => {
   try {
-    const { id, title, markdown_text, header_image, is_active } = req.body;
-    console.log(req.body);
+    const { id, title, markdown_text, is_active } = req.body;
+    const header_image = req.file ? req.file.filename : null;
+
     const category = await AboutUs.updateCategory(
       id,
       title,
@@ -162,40 +164,33 @@ exports.getAboutUsInfo = async (req, res) => {
 
 exports.addAboutUsInfo = async (req, res) => {
   try {
-    const { id, category_id, markdown_text, image, type } = req.body;
+    const { category_id, markdown_text, type } = req.body;
+    const image = req.file ? req.file.filename : null;
 
-    await AboutUs.createInfo(id, category_id, markdown_text, image, type);
+    const data = await AboutUs.createInfo(
+      category_id,
+      markdown_text,
+      image,
+      type
+    );
 
-    const info = await AboutUs.getInfo(id);
-    if (info) {
-      const formattedInfo = {
-        id: info.id,
-        category_id: info.category_id,
-        markdown_text: info.markdown_text,
-        image: info.image,
-        type: info.type,
-      };
-
-      res.status(200).json({
-        success: true,
-        message: "About Us info created successfully.",
-        data: formattedInfo,
-      });
-    } else {
-      res.status(404).json({
-        error: true,
-        message: "Error creating About Us info.",
-      });
-    }
+    res.status(200).json({
+      success: true,
+      message: "About Us info created successfully.",
+      data: [data],
+    });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server error." });
+    res.status(404).json({
+      error: true,
+      message: "Error creating About Us info.",
+    });
   }
 };
 
 exports.updateAboutUsInfo = async (req, res) => {
   try {
-    const { id, category_id, markdown_text, image, type } = req.body;
+    const { id, category_id, markdown_text, type } = req.body;
+    const image = req.file ? req.file.filename : null;
     const info = await AboutUs.updateInfo(
       id,
       category_id,

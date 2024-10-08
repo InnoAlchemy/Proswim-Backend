@@ -1,15 +1,14 @@
 const db = require("../../config/db");
 
 class Payment {
-  static async createPayment(id, user_id, product_id, payment_info, amount) {
+  static async createPayment(user_id, product_id, payment_info, amount) {
     try {
       await db.query(
-        "INSERT INTO payments (id, user_id, product_id, payment_info, amount) VALUES (?, ?, ?, ?, ?)",
-        [id, user_id, product_id, payment_info, amount]
+        "INSERT INTO payments (user_id, product_id, payment_info, amount) VALUES (?, ?, ?, ?)",
+        [user_id, product_id, payment_info, amount]
       );
       const [newPayment] = await db.query(
-        "SELECT * FROM payments WHERE id = ?",
-        [id]
+        "SELECT * FROM payments WHERE id = LAST_INSERT_ID()"
       );
       return newPayment[0];
     } catch (err) {

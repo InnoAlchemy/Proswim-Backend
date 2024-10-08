@@ -13,10 +13,14 @@ const shopRoutes = require("./routes/shopRoutes");
 const footerRoutes = require("./routes/footerRoutes");
 const feebackRoutes = require("./routes/feedbackRoutes");
 const contactUsRoutes = require("./routes/contactUsRoutes");
+const path = require("path");
 
 const app = express();
 
 app.use(express.json());
+
+// Serve static files from the 'uploads' directory
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/auth", authRoutes);
 

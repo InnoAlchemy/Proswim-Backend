@@ -4,10 +4,7 @@ class Description {
   static async getDescription() {
     try {
       const [rows] = await db.query("SELECT * FROM footer_description LIMIT 1");
-      if (rows.length === 0) {
-        return null;
-      }
-      return rows[0];
+      return rows;
     } catch (err) {
       throw err;
     }

@@ -24,15 +24,14 @@ class Button {
     }
   }
 
-  static async createButton(id, image, page_link, is_active) {
+  static async createButton(image, page_link, is_active) {
     try {
       const result = await db.query(
-        "INSERT INTO lts_buttons (id, image, page_link, is_active) VALUES (?, ?, ?, ?)",
-        [id, image, page_link, is_active]
+        "INSERT INTO lts_buttons (image, page_link, is_active) VALUES (?, ?, ?)",
+        [image, page_link, is_active]
       );
       const [newButton] = await db.query(
-        "SELECT * FROM lts_buttons WHERE id = ?",
-        [id]
+        "SELECT * FROM lts_buttons WHERE id = LAST_INSERT_ID()"
       );
       return newButton[0];
     } catch (err) {
@@ -42,10 +41,18 @@ class Button {
 
   static async updateButton(id, image, page_link, is_active) {
     try {
-      await db.query(
-        "UPDATE lts_buttons SET image = ?, page_link = ?, is_active = ? WHERE id = ?",
-        [image, page_link, is_active, id]
-      );
+      let query =
+        "UPDATE lts_buttons SET page_link = ?, is_active = ? WHERE id = ?";
+      let params = [page_link, is_active, id];
+
+      if (image !== null) {
+        query =
+          "UPDATE lts_buttons SET image = ?, page_link = ?, is_active = ? WHERE id = ?";
+        params = [image, page_link, is_active, id];
+      }
+
+      await db.query(query, params);
+
       const [updatedButton] = await db.query(
         "SELECT * FROM lts_buttons WHERE id = ?",
         [id]

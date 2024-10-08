@@ -24,15 +24,14 @@ class core {
     }
   }
 
-  static async createCore(id, image, title, description, is_active) {
+  static async createCore(image, title, description, is_active) {
     try {
       const result = await db.query(
-        "INSERT INTO core_values (id, image, title, description, is_active) VALUES (?, ?, ?, ?, ?)",
-        [id, image, title, description, is_active]
+        "INSERT INTO core_values (image, title, description, is_active) VALUES (?, ?, ?, ?)",
+        [image, title, description, is_active]
       );
       const [newcore] = await db.query(
-        "SELECT * FROM core_values WHERE id = ?",
-        [id]
+        "SELECT * FROM core_values WHERE id = LAST_INSERT_ID()"
       );
       return newcore[0];
     } catch (err) {
@@ -42,10 +41,18 @@ class core {
 
   static async updateCore(id, image, title, description, is_active) {
     try {
-      await db.query(
-        "UPDATE core_values SET image = ?, title = ?, description = ?, is_active = ? WHERE id = ?",
-        [image, title, description, is_active, id]
-      );
+      let query =
+        "UPDATE core_values SET title = ?, description = ?, is_active = ? WHERE id = ?";
+      let params = [title, description, is_active, id];
+
+      if (image !== null) {
+        query =
+          "UPDATE core_values SET image = ?, title = ?, description = ?, is_active = ? WHERE id = ?";
+        params = [image, title, description, is_active, id];
+      }
+
+      await db.query(query, params);
+
       const [updatedcore] = await db.query(
         "SELECT * FROM core_values WHERE id = ?",
         [id]

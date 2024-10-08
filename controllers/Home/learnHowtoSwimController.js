@@ -5,102 +5,76 @@ const router = express.Router();
 exports.getlearnToSwimButtons = async (req, res) => {
   try {
     const buttons = await LearnToSwim.getAllButtons();
-    console.log(buttons);
-    if (buttons.length > 0) {
-      const formattedButtons = buttons.map((button) => ({
-        id: button.id,
-        image: button.image,
-        page_link: button.page_link,
-        is_active: button.is_active,
-      }));
+    const formattedButtons = buttons.map((button) => ({
+      id: button.id,
+      image: button.image,
+      page_link: button.page_link,
+      is_active: button.is_active,
+    }));
 
-      res.status(200).json({
-        success: true,
-        message: "buttons retrieved successfully.",
-        data: formattedButtons,
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        message: "No buttons found.",
-        data: [],
-      });
-    }
+    res.status(200).json({
+      success: true,
+      message: "Learn to Swim button retrieved successfully.",
+      data: formattedButtons,
+    });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server error." });
+    res.status(404).json({
+      error: true,
+      message: "Error retrieving Learn to Swim button.",
+    });
   }
 };
-
-//
 
 exports.addlearnToSwimButtons = async (req, res) => {
   try {
-    const { id, image, page_link, is_active } = req.body;
+    const { page_link, is_active } = req.body;
+    const image = req.file ? req.file.filename : null;
 
-    await LearnToSwim.createButton(id, image, page_link, is_active);
+    const data = await LearnToSwim.createButton(image, page_link, is_active);
 
-    const button = await LearnToSwim.getButton(id);
-    if (button) {
-      const formattedButtons = {
-        id: button.id,
-        image: button.image,
-        page_link: button.page_link,
-        is_active: button.is_active,
-      };
-
-      res.status(200).json({
-        success: true,
-        message: "Button Created Succefully.",
-        data: formattedButtons,
-      });
-    } else {
-      res.status(404).json({
-        error: true,
-        message: "Button creating button.",
-      });
-    }
+    res.status(200).json({
+      success: true,
+      message: "Learn to Swim button created successfully.",
+      data: [data],
+    });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server error." });
+    res.status(404).json({
+      error: true,
+      message: "Error creating Learn to Swim button.",
+    });
   }
 };
-//
 exports.updatelearnToSwimButtons = async (req, res) => {
   try {
-    const { id, image, page_link, is_active } = req.body;
-    console.log(req.body);
+    const { page_link, is_active } = req.body;
+    const { id } = req.params;
+    const image = req.file ? req.file.filename : null;
+
     const button = await LearnToSwim.updateButton(
       id,
       image,
       page_link,
       is_active
     );
-    if (button) {
-      const formattedButtons = {
+
+    res.status(200).json({
+      success: true,
+      message: "Learn to Swim button updated successfully.",
+      data: {
         id: button.id,
         image: button.image,
-        title: button.title,
+        page_link: button.page_link,
         is_active: button.is_active,
-      };
-
-      res.status(200).json({
-        success: true,
-        message: "Button Updated Succefully.",
-        data: formattedButtons,
-      });
-    } else {
-      res.status(404).json({
-        error: true,
-        message: "Error creating button.",
-      });
-    }
+      },
+    });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server error." });
+    console.error(error);
+    res.status(404).json({
+      error: true,
+      message: "Error updating Learn to Swim button.",
+    });
   }
 };
-//
 
 exports.deletelearnToSwimButtons = async (req, res) => {
   try {

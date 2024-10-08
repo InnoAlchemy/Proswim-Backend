@@ -13,12 +13,16 @@ class Cart {
     }
   }
 
-  static async addCartItem(id, product_id, user_id, quantity, price) {
+  static async addCartItem(product_id, user_id, quantity, price) {
     try {
       await db.query(
-        "INSERT INTO cart_items (id, product_id, user_id, quantity, price) VALUES (?, ?, ?, ?, ?)",
-        [id, product_id, user_id, quantity, price]
+        "INSERT INTO cart_items (product_id, user_id, quantity, price) VALUES (?, ?, ?, ?)",
+        [product_id, user_id, quantity, price]
       );
+      const [newItem] = await db.query(
+        "SELECT * FROM cart_items WHERE id = LAST_INSERT_ID()"
+      );
+      return newItem[0];
     } catch (err) {
       throw err;
     }

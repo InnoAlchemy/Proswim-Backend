@@ -35,32 +35,20 @@ exports.getAlbums = async (req, res) => {
 
 exports.addAlbums = async (req, res) => {
   try {
-    const { id, title, description } = req.body;
+    const { title, description } = req.body;
 
-    await Album.createAlbum(id, title, description);
+    const data = await Album.createAlbum(title, description);
 
-    const album = await Album.getAlbum(id);
-    if (album) {
-      const formattedAlbums = {
-        id: album.id,
-        title: album.title,
-        description: album.description,
-      };
-
-      res.status(200).json({
-        success: true,
-        message: "Album Created Succefully.",
-        data: formattedAlbums,
-      });
-    } else {
-      res.status(404).json({
-        error: true,
-        message: "Error creating album.",
-      });
-    }
+    res.status(200).json({
+      success: true,
+      message: "Album Created Succefully.",
+      data: [data],
+    });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server error." });
+    res.status(404).json({
+      error: true,
+      message: "Error creating album.",
+    });
   }
 };
 //

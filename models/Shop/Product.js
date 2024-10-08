@@ -25,7 +25,6 @@ class Product {
   }
 
   static async createProduct(
-    id,
     title,
     description,
     price,
@@ -38,9 +37,8 @@ class Product {
   ) {
     try {
       await db.query(
-        "INSERT INTO products (id, title, description, price, colors, product_info, gender, brand, sport, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO products ( title, description, price, colors, product_info, gender, brand, sport, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
-          id,
           title,
           description,
           price,
@@ -53,8 +51,7 @@ class Product {
         ]
       );
       const [newProduct] = await db.query(
-        "SELECT * FROM products WHERE id = ?",
-        [id]
+        "SELECT * FROM products WHERE id = LAST_INSERT_ID()"
       );
       return newProduct[0];
     } catch (err) {

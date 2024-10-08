@@ -32,8 +32,7 @@ class PhoneNumbers {
         [phone_number, is_active]
       );
       const [newPhoneNumber] = await db.query(
-        "SELECT * FROM phone_numbers WHERE phone_number = ?",
-        [phone_number]
+        "SELECT * FROM phone_numbers WHERE id = LAST_INSERT_ID()"
       );
       return newPhoneNumber[0];
     } catch (err) {

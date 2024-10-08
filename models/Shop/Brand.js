@@ -22,15 +22,15 @@ class Brand {
     }
   }
 
-  static async createBrand(id, title, is_active) {
+  static async createBrand(title, is_active) {
     try {
-      await db.query(
-        "INSERT INTO brands (id, title, is_active) VALUES (?, ?, ?)",
-        [id, title, is_active]
-      );
-      const [newBrand] = await db.query("SELECT * FROM brands WHERE id = ?", [
-        id,
+      await db.query("INSERT INTO brands (title, is_active) VALUES (?, ?)", [
+        title,
+        is_active,
       ]);
+      const [newBrand] = await db.query(
+        "SELECT * FROM brands WHERE id = LAST_INSERT_ID()"
+      );
       return newBrand[0];
     } catch (err) {
       throw err;

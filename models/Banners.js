@@ -22,27 +22,37 @@ class Banner {
     }
   }
 
-  static async createBanner(id, image, title, is_active) {
+  static async createBanner(image, title, is_active) {
     try {
       const result = await db.query(
-        "INSERT INTO banners (id, image, title, is_active) VALUES (?, ?, ?, ?)",
-        [id, image, title, is_active]
+        "INSERT INTO banners (image, title, is_active) VALUES (?, ?, ?)",
+        [image, title, is_active]
       );
-      const [newBanner] = await db.query("SELECT * FROM banners WHERE id = ?", [
-        id,
-      ]);
+      const [newBanner] = await db.query(
+        "SELECT * FROM banners WHERE id = LAST_INSERT_ID()"
+      );
       return newBanner[0];
     } catch (err) {
       throw err;
     }
   }
 
-  static async updateBanner(id, image, title, is_active) {
+  static async updateBanner(id, { image, title, is_active }) {
     try {
-      await db.query(
-        "UPDATE banners SET image = ?, title = ?, is_active = ? WHERE id = ?",
-        [image, title, is_active, id]
-      );
+      console.log(image);
+      let query = "UPDATE banners SET title = ?, is_active = ?";
+      let params = [title, is_active];
+
+      if (image !== null) {
+        query += ", image = ?";
+        params.push(image);
+      }
+
+      query += " WHERE id = ?";
+      params.push(id);
+
+      await db.query(query, params);
+
       const [updatedBanner] = await db.query(
         "SELECT * FROM banners WHERE id = ?",
         [id]

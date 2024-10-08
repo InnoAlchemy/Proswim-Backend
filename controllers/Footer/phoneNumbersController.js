@@ -5,23 +5,15 @@ const router = express.Router();
 exports.getPhoneNumbers = async (req, res) => {
   try {
     const phoneNumbers = await PhoneNumbers.getAllPhoneNumbers();
-    if (phoneNumbers.length > 0) {
-      res.status(200).json({
-        success: true,
-        message: "Phone numbers retrieved successfully.",
-        data: phoneNumbers,
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        message: "No phone numbers found.",
-        data: [],
-      });
-    }
+    res.status(200).json({
+      success: true,
+      message: "Phone numbers retrieved successfully.",
+      data: phoneNumbers,
+    });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res
-      .status(500)
+      .status(400)
       .json({ error: true, message: "Error retrieving phone numbers." });
   }
 };

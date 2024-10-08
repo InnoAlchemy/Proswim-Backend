@@ -31,7 +31,6 @@ exports.getProducts = async (req, res) => {
 exports.addProduct = async (req, res) => {
   try {
     const {
-      id,
       title,
       description,
       price,
@@ -45,8 +44,7 @@ exports.addProduct = async (req, res) => {
 
     const parsedColors = Array.isArray(colors) ? colors : JSON.parse(colors);
 
-    await Product.createProduct(
-      id,
+    const data = await Product.createProduct(
       title,
       description,
       price,
@@ -58,13 +56,12 @@ exports.addProduct = async (req, res) => {
       category
     );
 
-    const product = await Product.getProduct(id);
-    if (product) {
-      product.colors = JSON.parse(product.colors);
+    if (data) {
+      data.colors = JSON.parse(data.colors);
       res.status(201).json({
         success: true,
         message: "Product created successfully.",
-        data: product,
+        data: [data],
       });
     } else {
       res.status(400).json({

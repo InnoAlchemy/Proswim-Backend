@@ -6,7 +6,7 @@ exports.getAlbumFiles = async (req, res) => {
   try {
     const albumFiles = await AlbumFiles.getAllAlbumFiles();
     if (albumFiles.length > 0) {
-      const formattedAlbumFiles = AlbumFiles.map((albumFile) => ({
+      const formattedAlbumFiles = albumFiles.map((albumFile) => ({
         id: albumFile.id,
         title: albumFile.title,
         album_id: albumFile.album_id,
@@ -37,43 +37,26 @@ exports.getAlbumFiles = async (req, res) => {
 
 exports.addAlbumFile = async (req, res) => {
   try {
-    const { id, title, album_id, collection_number, file, short_description } =
+    const { title, album_id, collection_number, file, short_description } =
       req.body;
 
-    await AlbumFiles.createAlbumFile(
-      id,
+    const data = await AlbumFiles.createAlbumFile(
       title,
       album_id,
       collection_number,
       file,
       short_description
     );
-
-    const albumFile = await AlbumFiles.getAlbumFile(id);
-    if (albumFile) {
-      const formattedAlbumFiles = {
-        id: albumFile.id,
-        title: albumFile.title,
-        album_id: albumFile.album_id,
-        collection_number: albumFile.collection_number,
-        file: albumFile.file,
-        short_description: albumFile.short_description,
-      };
-
-      res.status(200).json({
-        success: true,
-        message: "Album Files Created Succefully.",
-        data: formattedAlbumFiles,
-      });
-    } else {
-      res.status(404).json({
-        error: true,
-        message: "Error creating Album Files.",
-      });
-    }
+    res.status(200).json({
+      success: true,
+      message: "Album Files Created Succefully.",
+      data: [data],
+    });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server error." });
+    res.status(404).json({
+      error: true,
+      message: "Error creating Album Files.",
+    });
   }
 };
 //

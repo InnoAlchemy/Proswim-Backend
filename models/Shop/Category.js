@@ -24,15 +24,14 @@ class Category {
     }
   }
 
-  static async createCategory(id, title, is_active) {
+  static async createCategory(title, is_active) {
     try {
       await db.query(
-        "INSERT INTO categories (id, title, is_active) VALUES (?, ?, ?)",
-        [id, title, is_active]
+        "INSERT INTO categories (title, is_active) VALUES ( ?, ?)",
+        [title, is_active]
       );
       const [newCategory] = await db.query(
-        "SELECT * FROM categories WHERE id = ?",
-        [id]
+        "SELECT * FROM categories WHERE id = LAST_INSERT_ID()"
       );
       return newCategory[0];
     } catch (err) {

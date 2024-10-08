@@ -19,13 +19,12 @@ exports.getBrands = async (req, res) => {
 
 exports.addBrand = async (req, res) => {
   try {
-    const { id, title, is_active } = req.body;
-    await Brand.createBrand(id, title, is_active);
-    const brand = await Brand.getBrand(id);
+    const { title, is_active } = req.body;
+    const data = await Brand.createBrand(title, is_active);
     res.status(201).json({
       success: true,
       message: "Brand created successfully.",
-      data: brand,
+      data: [data],
     });
   } catch (error) {
     console.log(error);

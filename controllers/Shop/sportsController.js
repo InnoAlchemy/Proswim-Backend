@@ -26,16 +26,15 @@ exports.getSports = async (req, res) => {
 
 exports.addSport = async (req, res) => {
   try {
-    const { id, title, is_active } = req.body;
+    const { title, is_active } = req.body;
 
-    await Sport.createSport(id, title, is_active);
+    const data = await Sport.createSport(title, is_active);
 
-    const sport = await Sport.getSport(id);
-    if (sport) {
+    if (data) {
       res.status(201).json({
         success: true,
         message: "Sport created successfully.",
-        data: sport,
+        data: [data],
       });
     } else {
       res.status(400).json({

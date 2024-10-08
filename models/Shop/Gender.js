@@ -22,15 +22,15 @@ class Gender {
     }
   }
 
-  static async createGender(id, title, is_active) {
+  static async createGender(title, is_active) {
     try {
-      await db.query(
-        "INSERT INTO genders (id, title, is_active) VALUES (?, ?, ?)",
-        [id, title, is_active]
-      );
-      const [newGender] = await db.query("SELECT * FROM genders WHERE id = ?", [
-        id,
+      await db.query("INSERT INTO genders (title, is_active) VALUES ( ?, ?)", [
+        title,
+        is_active,
       ]);
+      const [newGender] = await db.query(
+        "SELECT * FROM genders WHERE id = LAST_INSERT_ID()"
+      );
       return newGender[0];
     } catch (err) {
       throw err;

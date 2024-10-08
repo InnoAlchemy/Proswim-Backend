@@ -85,7 +85,6 @@ class Class {
   }
 
   static async createClass(
-    id,
     class_category_id,
     markdown_text,
     is_active,
@@ -93,19 +92,22 @@ class Class {
     list_of_content
   ) {
     try {
-      await db.query(
-        "INSERT INTO classes (id, class_category_id, markdown_text, is_active, button_text) VALUES (?, ?, ?, ?, ?)",
-        [id, class_category_id, markdown_text, is_active, button_text]
+      const res = await db.query(
+        "INSERT INTO classes (class_category_id, markdown_text, is_active, button_text) VALUES (?, ?, ?, ?)",
+        [class_category_id, markdown_text, is_active, button_text]
       );
+      const id = res[0].insertId;
+      console.log(id);
 
       if (list_of_content && list_of_content.length > 0) {
-        const insertContentPromises = list_of_content.map((content) => {
-          return db.query(
-            "INSERT INTO class_contents (class_id, title, description, image) VALUES (?, ?, ?, ?)",
-            [id, content.title, content.description, content.image]
-          );
-        });
-        await Promise.all(insertContentPromises);
+        await Promise.all(
+          list_of_content.map((content) => {
+            return db.query(
+              "INSERT INTO class_contents (class_id, title, description, image) VALUES (?, ?, ?, ?)",
+              [id, content.title, content.description, content.image]
+            );
+          })
+        );
       }
 
       const [newClass] = await db.query("SELECT * FROM classes WHERE id = ?", [

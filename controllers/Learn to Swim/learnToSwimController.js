@@ -21,23 +21,25 @@ exports.getLearnToSwimLevels = async (req, res) => {
 
 exports.addLearnToSwimLevel = async (req, res) => {
   try {
-    const { id, title, markdown_text, header_image, is_active } = req.body;
+    const { title, markdown_text, is_active } = req.body;
+    const header_image = req.file ? req.file.filename : null;
+
     const newLevel = await LearnToSwim.createLevel(
-      id,
       title,
       markdown_text,
       header_image,
       is_active
     );
+
     res.status(201).json({
       success: true,
       message: "Learn to Swim level created successfully.",
-      data: newLevel,
+      data: [newLevel],
     });
   } catch (error) {
     console.error(error);
-    res.status(400).json({
-      error: true,
+    res.status(500).json({
+      success: false,
       message: "Error creating Learn to Swim level.",
     });
   }
@@ -46,7 +48,8 @@ exports.addLearnToSwimLevel = async (req, res) => {
 exports.updateLearnToSwimLevel = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, markdown_text, header_image, is_active } = req.body;
+    const { title, markdown_text, is_active } = req.body;
+    const header_image = req.file ? req.file.filename : null;
     const updatedLevel = await LearnToSwim.updateLevel(
       id,
       title,
@@ -54,6 +57,7 @@ exports.updateLearnToSwimLevel = async (req, res) => {
       header_image,
       is_active
     );
+
     res.status(200).json({
       success: true,
       message: "Learn to Swim level updated successfully.",
@@ -61,8 +65,8 @@ exports.updateLearnToSwimLevel = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(400).json({
-      error: true,
+    res.status(500).json({
+      success: false,
       message: "Error updating Learn to Swim level.",
     });
   }
@@ -104,30 +108,23 @@ exports.getLearnToSwimSections = async (req, res) => {
 
 exports.addLearnToSwimSection = async (req, res) => {
   try {
-    const {
-      id,
-      level_id,
-      title,
-      markdown_text,
-      list_of_content,
-      header_image,
-      is_active,
-    } = req.body;
+    const { level_id, title, markdown_text, list_of_content, is_active } =
+      req.body;
+    const image = req.file ? req.file.filename : null;
 
     const newSection = await LearnToSwim.createSection(
-      id,
       level_id,
       title,
       markdown_text,
       list_of_content,
-      header_image,
+      image,
       is_active
     );
 
     res.status(201).json({
       success: true,
       message: "Learn to Swim section created successfully.",
-      data: newSection,
+      data: [newSection],
     });
   } catch (error) {
     console.error(error);
@@ -141,14 +138,9 @@ exports.addLearnToSwimSection = async (req, res) => {
 exports.updateLearnToSwimSection = async (req, res) => {
   try {
     const { id } = req.params;
-    const {
-      level_id,
-      title,
-      markdown_text,
-      list_of_content,
-      header_image,
-      is_active,
-    } = req.body;
+    const { level_id, title, markdown_text, list_of_content, is_active } =
+      req.body;
+    const image = req.file ? req.file.filename : null;
 
     const updatedSection = await LearnToSwim.updateSection(
       id,
@@ -156,7 +148,7 @@ exports.updateLearnToSwimSection = async (req, res) => {
       title,
       markdown_text,
       list_of_content,
-      header_image,
+      image,
       is_active
     );
 
