@@ -97,9 +97,8 @@ class Class {
         [class_category_id, markdown_text, is_active, button_text]
       );
       const id = res[0].insertId;
-      console.log(id);
 
-      if (list_of_content && list_of_content.length > 0) {
+      if (Array.isArray(list_of_content) && list_of_content.length > 0) {
         await Promise.all(
           list_of_content.map((content) => {
             return db.query(
@@ -110,10 +109,30 @@ class Class {
         );
       }
 
-      const [newClass] = await db.query("SELECT * FROM classes WHERE id = ?", [
-        id,
-      ]);
-      return newClass[0];
+      const [newClass] = await db.query(
+        `SELECT c.*, cc.id AS content_id, cc.title, cc.description, cc.image
+         FROM classes c
+         LEFT JOIN class_contents cc ON c.id = cc.class_id
+         WHERE c.id = ?`,
+        [id]
+      );
+
+      const createdClass = {
+        id: newClass[0].id,
+        class_category_id: newClass[0].class_category_id,
+        markdown_text: newClass[0].markdown_text,
+        is_active: newClass[0].is_active,
+        button_text: newClass[0].button_text,
+        list_of_content: newClass
+          .map((row) => ({
+            title: row.title,
+            description: row.description,
+            image: row.image,
+          }))
+          .filter((content) => content.title),
+      };
+
+      return createdClass;
     } catch (err) {
       throw err;
     }
@@ -137,19 +156,42 @@ class Class {
 
       if (list_of_content && list_of_content.length > 0) {
         const insertContentPromises = list_of_content.map((content) => {
-          return db.query(
-            "INSERT INTO class_contents (class_id, title, description, image) VALUES (?, ?, ?, ?)",
-            [id, content.title, content.description, content.image]
-          );
+          const { title, description, image } = content;
+          const query = image
+            ? "INSERT INTO class_contents (class_id, title, description, image) VALUES (?, ?, ?, ?)"
+            : "INSERT INTO class_contents (class_id, title, description) VALUES (?, ?, ?)";
+          const params = image
+            ? [id, title, description, image]
+            : [id, title, description];
+          return db.query(query, params);
         });
         await Promise.all(insertContentPromises);
       }
 
       const [updatedClass] = await db.query(
-        "SELECT * FROM classes WHERE id = ?",
+        `SELECT c.*, cc.id AS content_id, cc.title, cc.description, cc.image
+         FROM classes c
+         LEFT JOIN class_contents cc ON c.id = cc.class_id
+         WHERE c.id = ?`,
         [id]
       );
-      return updatedClass[0];
+
+      const class_object = {
+        id: updatedClass[0].id,
+        class_category_id: updatedClass[0].class_category_id,
+        markdown_text: updatedClass[0].markdown_text,
+        is_active: updatedClass[0].is_active,
+        button_text: updatedClass[0].button_text,
+        list_of_content: updatedClass
+          .map((row) => ({
+            title: row.title,
+            description: row.description,
+            image: row.image,
+          }))
+          .filter((content) => content.title),
+      };
+
+      return class_object;
     } catch (err) {
       throw err;
     }

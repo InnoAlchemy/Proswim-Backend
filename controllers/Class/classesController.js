@@ -35,7 +35,7 @@ exports.getClasses = async (req, res) => {
 
 exports.addClass = async (req, res) => {
   try {
-    const image = req.file ? req.file.filename : null;
+    const images = req.files ? req.files.map((file) => file.filename) : [];
 
     const {
       class_category_id,
@@ -45,14 +45,22 @@ exports.addClass = async (req, res) => {
       list_of_content,
     } = req.body;
 
-    list_of_content.image = image;
+    const parsedContentList = list_of_content.map((content) =>
+      typeof content === "string" ? JSON.parse(content) : content
+    );
+
+    if (parsedContentList && Array.isArray(parsedContentList)) {
+      parsedContentList.forEach((content, index) => {
+        content.image = images[index] || null;
+      });
+    }
 
     const data = await Classes.createClass(
       class_category_id,
       markdown_text,
       is_active,
       button_text,
-      list_of_content
+      parsedContentList
     );
     res.status(200).json({
       success: true,
@@ -71,6 +79,10 @@ exports.addClass = async (req, res) => {
 
 exports.updateClass = async (req, res) => {
   try {
+    const images = req.files ? req.files.map((file) => file.filename) : [];
+
+    console.log(images);
+
     const {
       id,
       class_category_id,
@@ -80,8 +92,13 @@ exports.updateClass = async (req, res) => {
       list_of_content,
     } = req.body;
 
-    const image = req.file ? req.file.filename : null;
-    list_of_content.image = image;
+    const list = JSON.parse(list_of_content);
+
+    if (list && Array.isArray(list)) {
+      list.forEach((content, index) => {
+        content.image = images[index] || null;
+      });
+    }
 
     const class_object = await Classes.updateClass(
       id,
@@ -89,7 +106,7 @@ exports.updateClass = async (req, res) => {
       markdown_text,
       is_active,
       button_text,
-      list_of_content
+      list
     );
 
     const updatedClass = await Classes.getClass(id);

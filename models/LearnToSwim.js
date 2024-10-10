@@ -155,7 +155,7 @@ class LearnToSwim {
       ]);
 
       const id = result.insertId; // Fixed insertId reference
-
+      console.log(list_of_content);
       if (list_of_content && list_of_content.length > 0) {
         const contentPromises = list_of_content.map((content) => {
           return db.execute(

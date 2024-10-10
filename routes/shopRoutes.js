@@ -8,12 +8,17 @@ const gendersController = require("../controllers/Shop/gendersController");
 const cartController = require("../controllers/Shop/cartController");
 const paymentsController = require("../controllers/Shop/paymentsController");
 const ordersController = require("../controllers/Shop/ordersController");
+const upload = require("../helper/uploadHandler");
 
 // Product routes
 router.get("/products", productsController.getProducts);
 router.get("/products/filter", productsController.filterProducts);
-router.post("/products", productsController.addProduct);
-router.put("/products/:id", productsController.updateProduct);
+router.post("/products", upload.array("image"), productsController.addProduct);
+router.put(
+  "/products/:id",
+  upload.array("image"),
+  productsController.updateProduct
+);
 router.delete("/products/:id", productsController.deleteProduct);
 
 // Brand routes

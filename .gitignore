@@ -85,3 +85,6 @@ build/
 
 # SvelteKit
 .svelte-kit/
+
+
+uploads/*

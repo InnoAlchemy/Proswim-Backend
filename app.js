@@ -14,6 +14,7 @@ const footerRoutes = require("./routes/footerRoutes");
 const feebackRoutes = require("./routes/feedbackRoutes");
 const contactUsRoutes = require("./routes/contactUsRoutes");
 const path = require("path");
+const bodyParser = require("body-parser");
 
 const app = express();
 

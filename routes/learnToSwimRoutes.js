@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const learnToSwimController = require("../controllers/Learn to Swim/learnToSwimController");
 const upload = require("../helper/uploadHandler");
+const mulipleUpload = require("../helper/mulitpleUploadHandler");
 
 // Routes for managing Learn to Swim levels
 router.get("/levels", learnToSwimController.getLearnToSwimLevels); // Get Learn to Swim Levels
@@ -21,12 +22,15 @@ router.delete("/levels/:id", learnToSwimController.deleteLearnToSwimLevel); // D
 router.get("/sections", learnToSwimController.getLearnToSwimSections); // Get Learn to Swim Sections
 router.post(
   "/sections",
-  upload.single("image"),
+  upload.fields([
+    { name: "image", maxCount: 5 },
+    { name: "header_image", maxCount: 5 },
+  ]),
   learnToSwimController.addLearnToSwimSection
 ); // Create Learn to Swim Section
 router.put(
   "/sections/:id",
-  upload.single("image"),
+  upload.array("image"),
   learnToSwimController.updateLearnToSwimSection
 ); // Update Learn to Swim Section by ID
 router.delete("/sections/:id", learnToSwimController.deleteLearnToSwimSection); // Delete Learn to Swim Section by ID
