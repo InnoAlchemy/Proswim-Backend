@@ -30,7 +30,10 @@ router.post(
 ); // Create Learn to Swim Section
 router.put(
   "/sections/:id",
-  upload.array("image"),
+  upload.fields([
+    { name: "image", maxCount: 5 },
+    { name: "header_image", maxCount: 5 },
+  ]),
   learnToSwimController.updateLearnToSwimSection
 ); // Update Learn to Swim Section by ID
 router.delete("/sections/:id", learnToSwimController.deleteLearnToSwimSection); // Delete Learn to Swim Section by ID

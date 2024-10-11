@@ -166,11 +166,21 @@ exports.updateLearnToSwimSection = async (req, res) => {
     const { id } = req.params;
     const { level_id, title, markdown_text, list_of_content, is_active } =
       req.body;
-    const images = req.files ? req.files.map((file) => file.filename) : null;
-    const header_image = req.file ? req.file.filename : null;
+    const header_image =
+      req.files && req.files["header_image"]
+        ? req.files["header_image"][0].filename
+        : null;
+    const images =
+      req.files && req.files["image"]
+        ? req.files["image"].map((file) => file.filename)
+        : [];
 
-    if (list_of_content && Array.isArray(list_of_content)) {
-      list_of_content.forEach((content, index) => {
+    const parsedContentList = list_of_content.map((content) =>
+      typeof content === "string" ? JSON.parse(content) : content
+    );
+
+    if (parsedContentList && Array.isArray(parsedContentList)) {
+      parsedContentList.forEach((content, index) => {
         content.image = images[index] || null;
       });
     }
@@ -179,7 +189,7 @@ exports.updateLearnToSwimSection = async (req, res) => {
       level_id,
       title,
       markdown_text,
-      list_of_content,
+      parsedContentList,
       header_image,
       is_active
     );

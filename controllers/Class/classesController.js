@@ -80,11 +80,9 @@ exports.addClass = async (req, res) => {
 exports.updateClass = async (req, res) => {
   try {
     const images = req.files ? req.files.map((file) => file.filename) : [];
-
-    console.log(images);
+    const { id } = req.params;
 
     const {
-      id,
       class_category_id,
       markdown_text,
       is_active,
@@ -92,10 +90,12 @@ exports.updateClass = async (req, res) => {
       list_of_content,
     } = req.body;
 
-    const list = JSON.parse(list_of_content);
+    const parsedContentList = list_of_content.map((content) =>
+      typeof content === "string" ? JSON.parse(content) : content
+    );
 
-    if (list && Array.isArray(list)) {
-      list.forEach((content, index) => {
+    if (parsedContentList && Array.isArray(parsedContentList)) {
+      parsedContentList.forEach((content, index) => {
         content.image = images[index] || null;
       });
     }
@@ -106,7 +106,7 @@ exports.updateClass = async (req, res) => {
       markdown_text,
       is_active,
       button_text,
-      list
+      parsedContentList
     );
 
     const updatedClass = await Classes.getClass(id);

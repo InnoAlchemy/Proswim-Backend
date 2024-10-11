@@ -13,7 +13,8 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
+    const randomString = crypto.randomBytes(16).toString("hex"); // Generates random 32-character string
+    cb(null, `${Date.now()}-${randomString}${path.extname(file.originalname)}`);
   },
 });
 

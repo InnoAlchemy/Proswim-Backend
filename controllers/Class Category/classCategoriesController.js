@@ -46,11 +46,10 @@ exports.addClassCategory = async (req, res) => {
       });
     }
 
-    const host = req.protocol + "://" + req.get("host");
     const data = await ClassCategories.createCategory(
       title,
       description,
-      `${host}/uploads/${header_image}`,
+      header_image,
       is_active
     );
 

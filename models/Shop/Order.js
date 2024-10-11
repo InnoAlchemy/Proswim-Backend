@@ -2,13 +2,16 @@ const db = require("../../config/db");
 
 class Order {
   static async createOrder(orderData) {
+    const connection = await db.getConnection();
     try {
+      await connection.beginTransaction();
+
       const { user_id, status, created_at, products } = orderData;
 
       // Insert the order first
-      const order = await db.query(
-        "INSERT INTO orders (user_id, total_price, status, created_at) VALUES ( ?, ?, ?, ?)",
-        [user_id, 0, status, created_at] // total_price is set to 0 initially
+      const order = await connection.query(
+        "INSERT INTO orders (user_id, total_price, status) VALUES ( ?, ?, ?)",
+        [user_id, 0, status] // total_price is set to 0 initially
       );
       const id = order[0].insertId;
 
@@ -16,7 +19,7 @@ class Order {
 
       // Insert associated products into a separate products table
       for (const product of products) {
-        const [productDetails] = await db.query(
+        const [productDetails] = await connection.query(
           "SELECT price, stock FROM products WHERE id = ?",
           [product.id]
         );
@@ -33,7 +36,7 @@ class Order {
 
         totalPrice += price * product.quantity;
 
-        await db.query(
+        await connection.query(
           "INSERT INTO order_products (order_id, product_id, product_price, product_color, product_gender, product_quantity) VALUES (?, ?, ?, ?, ?, ?)",
           [
             id,
@@ -46,27 +49,33 @@ class Order {
         );
 
         // Decrement the stock
-        await db.query("UPDATE products SET stock = stock - ? WHERE id = ?", [
-          product.quantity,
-          product.id,
-        ]);
+        await connection.query(
+          "UPDATE products SET stock = stock - ? WHERE id = ?",
+          [product.quantity, product.id]
+        );
       }
 
       // Update the total price of the order
-      await db.query("UPDATE orders SET total_price = ? WHERE order_id = ?", [
-        totalPrice,
-        id,
-      ]);
+      await connection.query(
+        "UPDATE orders SET total_price = ? WHERE order_id = ?",
+        [totalPrice, id]
+      );
+
+      // Commit the transaction
+      await connection.commit();
 
       // Now, get the last inserted order's ID
-      const [newOrder] = await db.query(
+      const [newOrder] = await connection.query(
         "SELECT * FROM orders WHERE order_id = ?",
         [id]
       );
 
       return id;
     } catch (err) {
+      await connection.rollback();
       throw err;
+    } finally {
+      connection.release();
     }
   }
 

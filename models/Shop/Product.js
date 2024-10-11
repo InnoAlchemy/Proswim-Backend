@@ -100,9 +100,22 @@ class Product {
       }
 
       const [newProduct] = await db.query(
-        "SELECT p.*, c.category_id, col.color_id, g.gender_id FROM products p LEFT JOIN product_categories c ON p.id = c.product_id LEFT JOIN product_colors col ON p.id = col.product_id LEFT JOIN product_genders g ON p.id = g.product_id WHERE p.id = ?",
-        [newProductId]
+        `
+        SELECT 
+          p.*, 
+          GROUP_CONCAT(DISTINCT c.category_id) AS categories, 
+          GROUP_CONCAT(DISTINCT col.color_id) AS colors, 
+          GROUP_CONCAT(DISTINCT g.gender_id) AS genders
+        FROM products p
+        LEFT JOIN product_categories c ON p.id = c.product_id
+        LEFT JOIN product_colors col ON p.id = col.product_id
+        LEFT JOIN product_genders g ON p.id = g.product_id
+        WHERE p.id = ?   -- Filtering by specific product ID
+        GROUP BY p.id
+        `,
+        [newProductId] // Use the product ID as the parameter
       );
+
       return newProduct[0];
     } catch (err) {
       throw err;
@@ -181,15 +194,21 @@ class Product {
 
       const [updatedProduct] = await db.query(
         `
-        SELECT p.*, c.category_id, col.color_id, g.gender_id 
+        SELECT 
+          p.*, 
+          GROUP_CONCAT(DISTINCT c.category_id) AS categories, 
+          GROUP_CONCAT(DISTINCT col.color_id) AS colors, 
+          GROUP_CONCAT(DISTINCT g.gender_id) AS genders
         FROM products p
         LEFT JOIN product_categories c ON p.id = c.product_id
         LEFT JOIN product_colors col ON p.id = col.product_id
         LEFT JOIN product_genders g ON p.id = g.product_id
-        WHERE p.id = ?
-      `,
+        WHERE p.id = ?   -- Filtering by specific product ID
+        GROUP BY p.id
+        `,
         [id]
       );
+
       return updatedProduct[0];
     } catch (err) {
       throw err;

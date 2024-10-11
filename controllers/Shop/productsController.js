@@ -57,7 +57,8 @@ exports.addProduct = async (req, res) => {
     const parsedCategories =
       typeof categories === "string" ? JSON.parse(categories) : categories;
 
-    const data = await Product.createProduct(
+    // Assuming createProduct returns a single product object
+    const product = await Product.createProduct(
       title,
       description,
       price,
@@ -71,12 +72,19 @@ exports.addProduct = async (req, res) => {
       stock
     );
 
-    if (data) {
-      data.images = JSON.parse(data.images);
+    if (product) {
+      const formattedProduct = {
+        ...product,
+        categories: [product.categories],
+        colors: [product.colors],
+        genders: [product.genders],
+        images: JSON.parse(product.images),
+      };
+
       res.status(201).json({
         success: true,
         message: "Product created successfully.",
-        data: [data],
+        data: [formattedProduct],
       });
     } else {
       res.status(400).json({
@@ -107,15 +115,18 @@ exports.updateProduct = async (req, res) => {
     const { id } = req.params;
 
     const images = req.files ? req.files.map((file) => file.filename) : [];
-    const parsedColors = Array.isArray(colors) ? colors : JSON.parse(colors);
-    const parsedImages = Array.isArray(images) ? images : JSON.parse(images);
-    const parsedGenders = Array.isArray(genders)
-      ? genders
-      : JSON.parse(genders);
-    const parsedCategories = Array.isArray(categories)
-      ? categories
-      : JSON.parse(categories);
 
+    // Parse input values if they are stringified JSON
+    const parsedColors =
+      typeof colors === "string" ? JSON.parse(colors) : colors;
+    const parsedImages =
+      typeof images === "string" ? JSON.parse(images) : images;
+    const parsedGenders =
+      typeof genders === "string" ? JSON.parse(genders) : genders;
+    const parsedCategories =
+      typeof categories === "string" ? JSON.parse(categories) : categories;
+
+    // Assuming updateProduct returns the updated product object
     const product = await Product.updateProduct(
       id,
       title,
@@ -130,15 +141,27 @@ exports.updateProduct = async (req, res) => {
       parsedImages,
       stock
     );
+
     if (product) {
-      product.colors = JSON.parse(product.colors);
-      product.images = JSON.parse(product.images);
-      product.genders = JSON.parse(product.genders);
-      product.categories = JSON.parse(product.categories);
+      // Format the product for consistent output
+      const formattedProduct = {
+        ...product,
+        categories: Array.isArray(product.categories)
+          ? product.categories
+          : [product.categories],
+        colors: Array.isArray(product.colors)
+          ? product.colors
+          : [product.colors],
+        genders: Array.isArray(product.genders)
+          ? product.genders
+          : [product.genders],
+        images: JSON.parse(product.images),
+      };
+
       res.status(200).json({
         success: true,
         message: "Product updated successfully.",
-        data: product,
+        data: [formattedProduct],
       });
     } else {
       res.status(400).json({
