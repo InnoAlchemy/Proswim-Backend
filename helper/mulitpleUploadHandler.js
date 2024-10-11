@@ -35,7 +35,7 @@ const upload = multer({
   fileFilter: fileFilter,
   limits: { fileSize: 1024 * 1024 * 5 }, // Limit file size to 5MB
 }).fields([
-  { name: "image", maxCount: 5 }, // Field for first set of images
+  { name: "image", maxCount: 5 },
   { name: "header_image", maxCount: 5 }, // Field for second set of images
 ]);
 

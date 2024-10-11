@@ -20,6 +20,7 @@ class Product {
       throw err;
     }
   }
+
   static async getProduct(id) {
     try {
       const [rows] = await db.query(
@@ -115,10 +116,10 @@ class Product {
     price,
     colors,
     product_info,
-    gender,
+    genders,
     brand,
     sport,
-    category,
+    categories,
     images,
     stock
   ) {
@@ -149,10 +150,14 @@ class Product {
       await db.query("DELETE FROM product_categories WHERE product_id = ?", [
         id,
       ]);
-      await db.query(
-        "INSERT INTO product_categories (product_id, category_id) VALUES (?, ?)",
-        [id, category]
-      );
+      if (categories) {
+        for (const category of categories) {
+          await db.query(
+            "INSERT INTO product_categories (product_id, category_id) VALUES (?, ?)",
+            [id, category]
+          );
+        }
+      }
 
       await db.query("DELETE FROM product_colors WHERE product_id = ?", [id]);
       if (colors) {
@@ -165,11 +170,13 @@ class Product {
       }
 
       await db.query("DELETE FROM product_genders WHERE product_id = ?", [id]);
-      if (gender) {
-        await db.query(
-          "INSERT INTO product_genders (product_id, gender_id) VALUES (?, ?)",
-          [id, gender]
-        );
+      if (genders) {
+        for (const gender of genders) {
+          await db.query(
+            "INSERT INTO product_genders (product_id, gender_id) VALUES (?, ?)",
+            [id, gender]
+          );
+        }
       }
 
       const [updatedProduct] = await db.query(
@@ -212,7 +219,11 @@ class Product {
     try {
       const { brand, sport, category, gender } = filters;
       let query = `
-        SELECT p.*, c.category_id, col.color_id, g.gender_id 
+        SELECT 
+          p.*, 
+          GROUP_CONCAT(DISTINCT c.category_id) AS categories, 
+          GROUP_CONCAT(DISTINCT col.color_id) AS colors, 
+          GROUP_CONCAT(DISTINCT g.gender_id) AS genders
         FROM products p
         LEFT JOIN product_categories c ON p.id = c.product_id
         LEFT JOIN product_colors col ON p.id = col.product_id
@@ -220,23 +231,26 @@ class Product {
         WHERE 1=1
       `;
       const queryParams = [];
+      console.log(filters); //
 
-      if (brand) {
-        query += " AND p.brand = ?";
-        queryParams.push(brand);
+      if (brand && brand.length > 0) {
+        query += ` AND p.brand IN (${brand.map(() => "?").join(",")})`;
+        queryParams.push(...brand);
       }
-      if (sport) {
-        query += " AND p.sport = ?";
-        queryParams.push(sport);
+      if (sport && sport.length > 0) {
+        query += ` AND p.sport IN (${sport.map(() => "?").join(",")})`;
+        queryParams.push(...sport);
       }
-      if (category) {
-        query += " AND c.category_id = ?";
-        queryParams.push(category);
+      if (category && category.length > 0) {
+        query += ` AND c.category_id IN (${category.map(() => "?").join(",")})`;
+        queryParams.push(...category);
       }
-      if (gender) {
-        query += " AND g.gender_id = ?";
-        queryParams.push(gender);
+      if (gender && gender.length > 0) {
+        query += ` AND g.gender_id IN (${gender.map(() => "?").join(",")})`;
+        queryParams.push(...gender);
       }
+
+      query += " GROUP BY p.id";
 
       const [rows] = await db.query(query, queryParams);
       return rows;
@@ -245,5 +259,4 @@ class Product {
     }
   }
 }
-
 module.exports = Product;

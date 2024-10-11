@@ -48,14 +48,14 @@ exports.addProduct = async (req, res) => {
       stock,
     } = req.body;
 
-    const parsedColors = Array.isArray(colors) ? colors : JSON.parse(colors);
-    const parsedImages = Array.isArray(images) ? images : JSON.parse(images);
-    const parsedGenders = Array.isArray(genders)
-      ? genders
-      : JSON.parse(genders);
-    const parsedCategories = Array.isArray(categories)
-      ? categories
-      : JSON.parse(categories);
+    const parsedColors =
+      typeof colors === "string" ? JSON.parse(colors) : colors;
+    const parsedImages =
+      typeof images === "string" ? JSON.parse(images) : images;
+    const parsedGenders =
+      typeof genders === "string" ? JSON.parse(genders) : genders;
+    const parsedCategories =
+      typeof categories === "string" ? JSON.parse(categories) : categories;
 
     const data = await Product.createProduct(
       title,
@@ -175,17 +175,17 @@ exports.deleteProduct = async (req, res) => {
 
 exports.filterProducts = async (req, res) => {
   try {
-    const { brand, sport, categories, genders, sortBy, sortOrder } = req.query;
-    const filters = { brand, sport, categories, genders };
+    const filters = ({ brand, sport, categories, genders, sortBy, sortOrder } =
+      req.query);
 
     const filteredProducts = await Product.filterProducts(filters);
     if (filteredProducts.length > 0) {
       const formattedProducts = filteredProducts.map((product) => ({
         ...product,
-        colors: JSON.parse(product.colors),
+        categories: [product.categories],
+        colors: [product.colors],
+        genders: [product.genders],
         images: JSON.parse(product.images),
-        genders: JSON.parse(product.genders),
-        categories: JSON.parse(product.categories),
       }));
 
       if (sortBy) {

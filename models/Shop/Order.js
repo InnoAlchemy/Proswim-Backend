@@ -3,37 +3,68 @@ const db = require("../../config/db");
 class Order {
   static async createOrder(orderData) {
     try {
-      const { user_id, total_price, status, created_at, products } = orderData;
+      const { user_id, status, created_at, products } = orderData;
 
       // Insert the order first
       const order = await db.query(
         "INSERT INTO orders (user_id, total_price, status, created_at) VALUES ( ?, ?, ?, ?)",
-        [user_id, total_price, status, created_at]
+        [user_id, 0, status, created_at] // total_price is set to 0 initially
       );
       const id = order[0].insertId;
-      console.log(id);
+
+      let totalPrice = 0;
+
+      // Insert associated products into a separate products table
+      for (const product of products) {
+        const [productDetails] = await db.query(
+          "SELECT price, stock FROM products WHERE id = ?",
+          [product.id]
+        );
+
+        if (productDetails.length === 0) {
+          throw new Error(`Product with id ${product.id} not found`);
+        }
+
+        const { price, stock } = productDetails[0];
+
+        if (stock < product.quantity) {
+          throw new Error(`Not enough stock for product with id ${product.id}`);
+        }
+
+        totalPrice += price * product.quantity;
+
+        await db.query(
+          "INSERT INTO order_products (order_id, product_id, product_price, product_color, product_gender, product_quantity) VALUES (?, ?, ?, ?, ?, ?)",
+          [
+            id,
+            product.id,
+            price,
+            product.color,
+            product.gender,
+            product.quantity,
+          ]
+        );
+
+        // Decrement the stock
+        await db.query("UPDATE products SET stock = stock - ? WHERE id = ?", [
+          product.quantity,
+          product.id,
+        ]);
+      }
+
+      // Update the total price of the order
+      await db.query("UPDATE orders SET total_price = ? WHERE order_id = ?", [
+        totalPrice,
+        id,
+      ]);
+
       // Now, get the last inserted order's ID
       const [newOrder] = await db.query(
         "SELECT * FROM orders WHERE order_id = ?",
         [id]
       );
 
-      // Insert associated products into a separate products table
-      for (const product of products) {
-        await db.query(
-          "INSERT INTO order_products (order_id, product_id, product_price, product_color, product_gender, product_quantity) VALUES (?, ?, ?, ?, ?, ?)",
-          [
-            id,
-            product.id,
-            product.price,
-            product.color,
-            product.gender,
-            product.quantity,
-          ]
-        );
-      }
-
-      return newOrder[0];
+      return id;
     } catch (err) {
       throw err;
     }

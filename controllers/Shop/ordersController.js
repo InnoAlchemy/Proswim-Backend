@@ -2,29 +2,28 @@ const Order = require("../../models/Shop/Order");
 
 exports.createOrder = async (req, res) => {
   try {
-    const { user_id, products, total_price, status, created_at } = req.body;
+    const { user_id, products, status, created_at } = req.body;
 
     // Assuming products is an array and you need to handle each product accordingly
     const orderData = {
       user_id,
-      total_price,
       status,
       created_at,
       products: products.map((product) => ({
-        product_id: product.product_id, // Ensure product_id is correctly mapped
-        price: product.price,
+        id: product.id, // Ensure product_id is correctly mapped
         color: product.color,
         gender: product.gender,
         quantity: product.quantity,
       })),
     };
 
-    const data = await Order.createOrder(orderData);
+    const oderId = await Order.createOrder(orderData);
+    const order = await Order.getOrder(oderId);
 
     res.status(201).json({
       success: true,
       message: "Order created successfully.",
-      data: [data],
+      data: [order],
     });
   } catch (error) {
     console.log(error);
