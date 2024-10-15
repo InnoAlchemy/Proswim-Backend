@@ -1,4 +1,5 @@
 const db = require("../config/db");
+
 class User {
   static async findByEmail(email) {
     try {
@@ -12,14 +13,23 @@ class User {
     }
   }
 
-  static async createUser(id, email, passwordHash, verified, role) {
+  static async createUser(email, passwordHash, verified, role) {
     try {
       const [result] = await db.query(
-        "INSERT INTO users (id, email, password, is_verified, role) VALUES (?,?,?,?,?)",
-        [id, email, passwordHash, verified, role]
+        "INSERT INTO users (email, password, is_verified, role) VALUES (?,?,?,?)",
+        [email, passwordHash, verified, role]
       );
       console.log(result);
       return result.affectedRows;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  static async findById(id) {
+    try {
+      const [rows] = await db.query("SELECT * FROM users WHERE id = ?", [id]);
+      return rows[0];
     } catch (err) {
       console.error(err);
     }

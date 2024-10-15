@@ -15,10 +15,13 @@ const feebackRoutes = require("./routes/feedbackRoutes");
 const contactUsRoutes = require("./routes/contactUsRoutes");
 const path = require("path");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 
 const app = express();
 
 app.use(express.json());
+
+app.use(cors());
 
 // Serve static files from the 'uploads' directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

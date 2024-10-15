@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
 });
 
 exports.signup = async (req, res) => {
-  const { id, email, password, is_verified, role } = req.body;
+  const { email, password, is_verified, role } = req.body;
 
   try {
     const existingUser = await User.findByEmail(email);
@@ -23,12 +23,15 @@ exports.signup = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.createUser(
-      id,
       email,
       hashedPassword,
       is_verified,
       role
     );
+
+    const user = await User.findByEmail(email);
+    const id = newUser.id;
+
     if (newUser) {
       res.status(201).json({
         success: true,
@@ -91,7 +94,6 @@ exports.google_signin = async (req, res) => {
     });
 
     const payload = ticket.getPayload();
-    const id = payload["sub"];
     const email = payload["email"];
 
     let existingUser = await User.findByEmail(email);
@@ -100,15 +102,17 @@ exports.google_signin = async (req, res) => {
       const is_verified = 0;
       const role = "user";
       existingUser = await User.createUser(
-        id,
         email,
         hashedPassword,
         is_verified,
         role
       );
     }
+    const newUser = await User.findByEmail(email);
+    console.log(newUser);
+    const id = newUser.id;
 
-    const jwtToken = jwt.sign({ id: existingUser.id }, process.env.JWT_SECRET, {
+    const jwtToken = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
 
@@ -120,6 +124,7 @@ exports.google_signin = async (req, res) => {
       },
     });
   } catch (error) {
+    console.log(error);
     return res.status(400).json({
       error: true,
       message: "Invalid Google token.",
@@ -258,5 +263,36 @@ exports.verify_otp = async (req, res) => {
       error: true,
       message: "Server error.",
     });
+  }
+};
+
+exports.get_user_details = async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const id = decoded.id;
+
+    try {
+      const user = await User.findById(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found." });
+      }
+
+      res.status(200).json({
+        success: true,
+        data: {
+          id: user.id,
+          email: user.email,
+          is_verified: user.is_verified,
+          role: user.role,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Server error." });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Invalid token." });
   }
 };

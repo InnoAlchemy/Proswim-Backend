@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 11, 2024 at 03:50 PM
+-- Generation Time: Oct 15, 2024 at 10:01 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -465,7 +465,7 @@ CREATE TABLE `swim_sections` (
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `password` varchar(255) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `is_verified` tinyint(1) NOT NULL,
   `role` varchar(6) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
