@@ -19,6 +19,7 @@ exports.getGenders = async (req, res) => {
 
 exports.addGender = async (req, res) => {
   try {
+    console.log(req.body);
     const { title, is_active } = req.body;
     const data = await Gender.createGender(title, is_active);
     res.status(201).json({

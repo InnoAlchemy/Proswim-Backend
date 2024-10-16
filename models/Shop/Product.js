@@ -277,5 +277,50 @@ class Product {
       throw err;
     }
   }
+
+  static async checkIdsExist({
+    categoryIds = [],
+    brandIds = [],
+    sportIds = [],
+    genderIds = [],
+  }) {
+    try {
+      const missing = {
+        categories: [],
+        brands: [],
+        sports: [],
+        genders: [],
+      };
+
+      const checkIds = async (ids, tableName, key) => {
+        if (ids.length > 0) {
+          const idsToCheck = ids.map((id) => parseInt(id, 10));
+          console.log("Checking IDs in", tableName, ":", idsToCheck);
+
+          const [rows] = await db.query(
+            `SELECT id FROM ${tableName} WHERE id IN (${idsToCheck
+              .map(() => "?")
+              .join(",")})`,
+            idsToCheck
+          );
+
+          const foundIds = new Set(rows.map((row) => row.id));
+          missing[key] = idsToCheck.filter((id) => !foundIds.has(id));
+        }
+      };
+
+      await Promise.all([
+        checkIds(categoryIds, "categories", "categories"),
+        checkIds(brandIds, "brands", "brands"),
+        checkIds(sportIds, "sports", "sports"),
+        checkIds(genderIds, "genders", "genders"),
+      ]);
+
+      return missing;
+    } catch (err) {
+      console.error("Error checking IDs:", err);
+      throw new Error("Failed to check IDs");
+    }
+  }
 }
 module.exports = Product;

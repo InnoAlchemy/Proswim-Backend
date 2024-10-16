@@ -16,10 +16,10 @@ const contactUsRoutes = require("./routes/contactUsRoutes");
 const path = require("path");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-
 const app = express();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
 

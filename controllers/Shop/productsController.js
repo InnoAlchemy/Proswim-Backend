@@ -57,7 +57,26 @@ exports.addProduct = async (req, res) => {
     const parsedCategories =
       typeof categories === "string" ? JSON.parse(categories) : categories;
 
-    // Assuming createProduct returns a single product object
+    const missingIds = await Product.checkIdsExist({
+      categoryIds: parsedCategories,
+      brandIds: [brand],
+      sportIds: [sport],
+      genderIds: parsedGenders,
+    });
+
+    if (
+      missingIds.categories.length > 0 ||
+      missingIds.brands.length > 0 ||
+      missingIds.sports.length > 0 ||
+      missingIds.genders.length > 0
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Some provided IDs do not exist.",
+        missingIds,
+      });
+    }
+
     const product = await Product.createProduct(
       title,
       description,
@@ -116,7 +135,6 @@ exports.updateProduct = async (req, res) => {
 
     const images = req.files ? req.files.map((file) => file.filename) : [];
 
-    // Parse input values if they are stringified JSON
     const parsedColors =
       typeof colors === "string" ? JSON.parse(colors) : colors;
     const parsedImages =
@@ -126,7 +144,26 @@ exports.updateProduct = async (req, res) => {
     const parsedCategories =
       typeof categories === "string" ? JSON.parse(categories) : categories;
 
-    // Assuming updateProduct returns the updated product object
+    const missingIds = await Product.checkIdsExist({
+      categoryIds: parsedCategories,
+      brandIds: [brand],
+      sportIds: [sport],
+      genderIds: parsedGenders,
+    });
+
+    if (
+      missingIds.categories.length > 0 ||
+      missingIds.brands.length > 0 ||
+      missingIds.sports.length > 0 ||
+      missingIds.genders.length > 0
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Some provided IDs do not exist.",
+        missingIds,
+      });
+    }
+
     const product = await Product.updateProduct(
       id,
       title,
