@@ -7,11 +7,32 @@ exports.getProducts = async (req, res) => {
     const products = await Product.getAllProducts();
     if (products.length > 0) {
       const formattedProducts = products.map((product) => ({
-        ...product,
-        categories: [product.categories],
-        colors: [product.colors],
-        genders: [product.genders],
-        images: JSON.parse(product.images),
+        id: product.id, // Include the product ID
+        product_info: [
+          {
+            title: product.title, // Keep title in product_info
+            description: product.description, // Keep description in product_info
+          },
+        ],
+        brand: product.brand, // Include brand ID
+        sport: product.sport, // Include sport ID
+        stock: product.stock, // Include stock quantity
+        categories: [product.categories], // Include categories
+        colors: [product.colors], // Include colors
+        genders: [product.genders], // Include genders
+        images: JSON.parse(product.images), // Parse images array
+        price: [
+          {
+            currency: "lbp",
+            value: product.price_lbp, // Keep LBP price
+          },
+          {
+            currency: "usd",
+            value: product.price_usd, // Keep USD price
+          },
+        ],
+        created_at: product.created_at, // Include creation timestamp
+        updated_at: product.updated_at, // Include update timestamp
       }));
       res.status(200).json({
         success: true,
@@ -99,48 +120,41 @@ exports.addProduct = async (req, res) => {
     );
 
     if (product) {
-      if (product) {
-        const formattedProduct = {
-          id: product.id, // Include the product ID
-          product_info: [
-            {
-              title: product.title, // Keep title in product_info
-              description: product.description, // Keep description in product_info
-            },
-          ],
+      const formattedProduct = {
+        id: product.id, // Include the product ID
+        product_info: [
+          {
+            title: product.title, // Keep title in product_info
+            description: product.description, // Keep description in product_info
+          },
+        ],
 
-          brand: product.brand, // Include brand ID
-          sport: product.sport, // Include sport ID
-          stock: product.stock, // Include stock quantity
-          categories: [product.categories], // Include categories
-          colors: [product.colors], // Include colors
-          genders: [product.genders], // Include genders
-          images: JSON.parse(product.images), // Parse images array
-          price: [
-            {
-              currency: "lbp",
-              value: product.price_lbp, // Keep LBP price
-            },
-            {
-              currency: "usd",
-              value: product.price_usd, // Keep USD price
-            },
-          ],
-          created_at: product.created_at, // Include creation timestamp
-          updated_at: product.updated_at, // Include update timestamp
-        };
+        brand: product.brand, // Include brand ID
+        sport: product.sport, // Include sport ID
+        stock: product.stock, // Include stock quantity
+        categories: [product.categories], // Include categories
+        colors: [product.colors], // Include colors
+        genders: [product.genders], // Include genders
+        images: JSON.parse(product.images), // Parse images array
+        price: [
+          {
+            currency: "lbp",
+            value: product.price_lbp, // Keep LBP price
+          },
+          {
+            currency: "usd",
+            value: product.price_usd, // Keep USD price
+          },
+        ],
+        created_at: product.created_at, // Include creation timestamp
+        updated_at: product.updated_at, // Include update timestamp
+      };
 
-        res.status(201).json({
-          success: true,
-          message: "Product created successfully.",
-          data: [formattedProduct],
-        });
-      } else {
-        res.status(400).json({
-          error: true,
-          message: "Error creating product.",
-        });
-      }
+      res.status(201).json({
+        success: true,
+        message: "Product created successfully.",
+        data: [formattedProduct],
+      });
     } else {
       res.status(400).json({
         error: true,

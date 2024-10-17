@@ -6,13 +6,15 @@ class Product {
       const [rows] = await db.query(`
         SELECT 
           p.*, 
-          GROUP_CONCAT(DISTINCT c.category_id) AS categories, 
-          GROUP_CONCAT(DISTINCT col.color_id) AS colors, 
-          GROUP_CONCAT(DISTINCT g.gender_id) AS genders
+          GROUP_CONCAT(DISTINCT cat.title) AS categories, 
+          GROUP_CONCAT(DISTINCT pc.color_id) AS colors, 
+          GROUP_CONCAT(DISTINCT g.title) AS genders
         FROM products p
-        LEFT JOIN product_categories c ON p.id = c.product_id
-        LEFT JOIN product_colors col ON p.id = col.product_id
-        LEFT JOIN product_genders g ON p.id = g.product_id
+        LEFT JOIN product_categories pc2 ON p.id = pc2.product_id
+        LEFT JOIN categories cat ON pc2.category_id = cat.id
+        LEFT JOIN product_genders pg ON p.id = pg.product_id
+        LEFT JOIN genders g ON pg.gender_id = g.id
+        LEFT JOIN product_colors pc ON p.id = pc.product_id
         GROUP BY p.id
       `);
       return rows;
