@@ -25,16 +25,10 @@ class AboutUs {
     }
   }
 
-  static async createCategory(
-    id,
-    title,
-    markdown_text,
-    header_image,
-    is_active
-  ) {
+  static async createCategory(title, markdown_text, header_image, is_active) {
     try {
       const result = await db.query(
-        "INSERT INTO about_us_categories (title, markdown_text, header_image, is_active) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO about_us_categories (title, markdown_text, header_image, is_active) VALUES (?, ?, ?, ?)",
         [title, markdown_text, header_image, is_active]
       );
       const [newCategory] = await db.query(
