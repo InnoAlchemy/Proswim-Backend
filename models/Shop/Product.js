@@ -47,7 +47,8 @@ class Product {
   static async createProduct(
     title,
     description,
-    price,
+    price_usd,
+    price_lbp,
     colors,
     product_info,
     genders,
@@ -59,11 +60,12 @@ class Product {
   ) {
     try {
       const [result] = await db.query(
-        "INSERT INTO products (title, description, price, product_info, brand, sport, images, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO products (title, description, price_usd, price_lbp, product_info, brand, sport, images, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           title,
           description,
-          price,
+          price_usd,
+          price_lbp,
           product_info,
           brand,
           sport,
@@ -126,7 +128,8 @@ class Product {
     id,
     title,
     description,
-    price,
+    price_usd,
+    price_lbp,
     colors,
     product_info,
     genders,
@@ -139,11 +142,12 @@ class Product {
     try {
       // Update product details
       let query =
-        "UPDATE products SET title = ?, description = ?, price = ?, product_info = ?, brand = ?, sport = ?, stock = ?";
+        "UPDATE products SET title = ?, description = ?, price_usd = ?, price_lbp = ?,  product_info = ?, brand = ?, sport = ?, stock = ?";
       const queryParams = [
         title,
         description,
-        price,
+        price_usd,
+        price_lbp,
         product_info,
         brand,
         sport,

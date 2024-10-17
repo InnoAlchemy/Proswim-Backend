@@ -38,7 +38,7 @@ exports.addProduct = async (req, res) => {
     const {
       title,
       description,
-      price,
+      price, // the price object or array
       colors,
       product_info,
       genders,
@@ -48,6 +48,7 @@ exports.addProduct = async (req, res) => {
       stock,
     } = req.body;
 
+    // Parse fields if necessary
     const parsedColors =
       typeof colors === "string" ? JSON.parse(colors) : colors;
     const parsedImages =
@@ -56,6 +57,11 @@ exports.addProduct = async (req, res) => {
       typeof genders === "string" ? JSON.parse(genders) : genders;
     const parsedCategories =
       typeof categories === "string" ? JSON.parse(categories) : categories;
+
+    const parsedPrice = typeof price === "string" ? JSON.parse(price) : price;
+
+    const priceInLBP = parsedPrice.find((p) => p.currency === "lbp")?.value;
+    const priceInUSD = parsedPrice.find((p) => p.currency === "usd")?.value;
 
     const missingIds = await Product.checkIdsExist({
       categoryIds: parsedCategories,
@@ -80,7 +86,8 @@ exports.addProduct = async (req, res) => {
     const product = await Product.createProduct(
       title,
       description,
-      price,
+      priceInLBP,
+      priceInUSD,
       parsedColors,
       product_info,
       parsedGenders,
@@ -92,19 +99,48 @@ exports.addProduct = async (req, res) => {
     );
 
     if (product) {
-      const formattedProduct = {
-        ...product,
-        categories: [product.categories],
-        colors: [product.colors],
-        genders: [product.genders],
-        images: JSON.parse(product.images),
-      };
+      if (product) {
+        const formattedProduct = {
+          id: product.id, // Include the product ID
+          product_info: [
+            {
+              title: product.title, // Keep title in product_info
+              description: product.description, // Keep description in product_info
+            },
+          ],
 
-      res.status(201).json({
-        success: true,
-        message: "Product created successfully.",
-        data: [formattedProduct],
-      });
+          brand: product.brand, // Include brand ID
+          sport: product.sport, // Include sport ID
+          stock: product.stock, // Include stock quantity
+          categories: [product.categories], // Include categories
+          colors: [product.colors], // Include colors
+          genders: [product.genders], // Include genders
+          images: JSON.parse(product.images), // Parse images array
+          price: [
+            {
+              currency: "lbp",
+              value: product.price_lbp, // Keep LBP price
+            },
+            {
+              currency: "usd",
+              value: product.price_usd, // Keep USD price
+            },
+          ],
+          created_at: product.created_at, // Include creation timestamp
+          updated_at: product.updated_at, // Include update timestamp
+        };
+
+        res.status(201).json({
+          success: true,
+          message: "Product created successfully.",
+          data: [formattedProduct],
+        });
+      } else {
+        res.status(400).json({
+          error: true,
+          message: "Error creating product.",
+        });
+      }
     } else {
       res.status(400).json({
         error: true,
@@ -119,10 +155,12 @@ exports.addProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
+    const images = req.files ? req.files.map((file) => file.filename) : [];
+
     const {
       title,
       description,
-      price,
+      price, // the price object or array
       colors,
       product_info,
       genders,
@@ -131,10 +169,10 @@ exports.updateProduct = async (req, res) => {
       categories,
       stock,
     } = req.body;
+
     const { id } = req.params;
 
-    const images = req.files ? req.files.map((file) => file.filename) : [];
-
+    // Parse fields if necessary
     const parsedColors =
       typeof colors === "string" ? JSON.parse(colors) : colors;
     const parsedImages =
@@ -143,6 +181,11 @@ exports.updateProduct = async (req, res) => {
       typeof genders === "string" ? JSON.parse(genders) : genders;
     const parsedCategories =
       typeof categories === "string" ? JSON.parse(categories) : categories;
+
+    const parsedPrice = typeof price === "string" ? JSON.parse(price) : price;
+
+    const priceInLBP = parsedPrice.find((p) => p.currency === "lbp")?.value;
+    const priceInUSD = parsedPrice.find((p) => p.currency === "usd")?.value;
 
     const missingIds = await Product.checkIdsExist({
       categoryIds: parsedCategories,
@@ -168,7 +211,8 @@ exports.updateProduct = async (req, res) => {
       id,
       title,
       description,
-      price,
+      priceInLBP,
+      priceInUSD,
       parsedColors,
       product_info,
       parsedGenders,
@@ -180,19 +224,34 @@ exports.updateProduct = async (req, res) => {
     );
 
     if (product) {
-      // Format the product for consistent output
       const formattedProduct = {
-        ...product,
-        categories: Array.isArray(product.categories)
-          ? product.categories
-          : [product.categories],
-        colors: Array.isArray(product.colors)
-          ? product.colors
-          : [product.colors],
-        genders: Array.isArray(product.genders)
-          ? product.genders
-          : [product.genders],
-        images: JSON.parse(product.images),
+        id: product.id, // Include the product ID
+        product_info: [
+          {
+            title: product.title, // Keep title in product_info
+            description: product.description, // Keep description in product_info
+          },
+        ],
+
+        brand: product.brand, // Include brand ID
+        sport: product.sport, // Include sport ID
+        stock: product.stock, // Include stock quantity
+        categories: [product.categories], // Include categories
+        colors: [product.colors], // Include colors
+        genders: [product.genders], // Include genders
+        images: JSON.parse(product.images), // Parse images array
+        price: [
+          {
+            currency: "lbp",
+            value: product.price_lbp, // Keep LBP price
+          },
+          {
+            currency: "usd",
+            value: product.price_usd, // Keep USD price
+          },
+        ],
+        created_at: product.created_at, // Include creation timestamp
+        updated_at: product.updated_at, // Include update timestamp
       };
 
       res.status(200).json({

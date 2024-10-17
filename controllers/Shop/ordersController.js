@@ -2,13 +2,13 @@ const Order = require("../../models/Shop/Order");
 
 exports.createOrder = async (req, res) => {
   try {
-    const { user_id, products, status, created_at } = req.body;
+    const { user_id, products, status, currency } = req.body;
 
     // Assuming products is an array and you need to handle each product accordingly
     const orderData = {
       user_id,
       status,
-      created_at,
+      currency,
       products: products.map((product) => ({
         id: product.id, // Ensure product_id is correctly mapped
         color: product.color,

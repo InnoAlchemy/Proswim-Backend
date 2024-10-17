@@ -6,12 +6,12 @@ class Order {
     try {
       await connection.beginTransaction();
 
-      const { user_id, status, created_at, products } = orderData;
+      const { user_id, status, products, currency } = orderData;
 
       // Insert the order first
       const order = await connection.query(
-        "INSERT INTO orders (user_id, total_price, status) VALUES ( ?, ?, ?)",
-        [user_id, 0, status] // total_price is set to 0 initially
+        "INSERT INTO orders (user_id, total_price, currency, status) VALUES (?, ?, ?, ?)",
+        [user_id, 0, currency, status] // total_price is set to 0 initially
       );
       const id = order[0].insertId;
 
@@ -20,7 +20,11 @@ class Order {
       // Insert associated products into a separate products table
       for (const product of products) {
         const [productDetails] = await connection.query(
-          "SELECT price, stock FROM products WHERE id = ?",
+          `SELECT 
+            ${currency === "USD" ? "price_usd" : "price_lbp"} AS price,
+            stock 
+          FROM products 
+          WHERE id = ?`,
           [product.id]
         );
 
