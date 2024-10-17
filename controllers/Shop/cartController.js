@@ -2,8 +2,8 @@ const Cart = require("../../models/Shop/Cart");
 
 exports.getCartItems = async (req, res) => {
   try {
-    const userId = req.query.user_id;
-    const cartItems = await Cart.getCartItemsByUserId(userId);
+    const user_id = req.userId;
+    const cartItems = await Cart.getCartItemsByUserId(user_id);
     res.status(200).json({
       success: true,
       message: "Cart items retrieved successfully.",
@@ -20,7 +20,8 @@ exports.getCartItems = async (req, res) => {
 
 exports.addCartItem = async (req, res) => {
   try {
-    const { product_id, user_id, quantity } = req.body;
+    const { product_id, quantity } = req.body;
+    const user_id = req.userId;
     const data = await Cart.addCartItem(product_id, user_id, quantity);
     res.status(201).json({
       success: true,

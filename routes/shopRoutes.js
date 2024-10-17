@@ -9,6 +9,7 @@ const cartController = require("../controllers/Shop/cartController");
 const paymentsController = require("../controllers/Shop/paymentsController");
 const ordersController = require("../controllers/Shop/ordersController");
 const upload = require("../helper/uploadHandler");
+const verifyToken = require("../middlewares/authMiddleware");
 
 // Product routes
 router.get("/products", productsController.getProducts);
@@ -46,19 +47,19 @@ router.put("/genders/:id", gendersController.updateGender);
 router.delete("/genders/:id", gendersController.deleteGender);
 
 // Cart routes
-router.get("/cart", cartController.getCartItems);
-router.post("/cart", cartController.addCartItem);
-router.put("/cart", cartController.updateCartItem);
-router.delete("/cart/:id", cartController.deleteCartItem);
+router.get("/cart", verifyToken, cartController.getCartItems);
+router.post("/cart", verifyToken, cartController.addCartItem);
+router.put("/cart", verifyToken, cartController.updateCartItem);
+router.delete("/cart/:id", verifyToken, cartController.deleteCartItem);
 
 // Payment routes
-router.post("/payment", paymentsController.createPayment);
-router.get("/payment/:id", paymentsController.getPayment);
-router.delete("/payment/:id", paymentsController.deletePayment);
+router.post("/payment", verifyToken, paymentsController.createPayment);
+router.get("/payment/:id", verifyToken, paymentsController.getPayment);
+router.delete("/payment/:id", verifyToken, paymentsController.deletePayment);
 
 // Order routes
-router.post("/orders", ordersController.createOrder);
-router.get("/orders/:id", ordersController.getOrder);
-router.delete("/orders/:id", ordersController.deleteOrder);
+router.post("/orders", verifyToken, ordersController.createOrder);
+router.get("/orders/:id", verifyToken, ordersController.getOrder);
+router.delete("/orders/:id", verifyToken, ordersController.deleteOrder);
 
 module.exports = router;

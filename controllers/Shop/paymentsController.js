@@ -3,7 +3,8 @@ const Payment = require("../../models/Shop/Payment");
 const router = express.Router();
 exports.createPayment = async (req, res) => {
   try {
-    const { user_id, product_id, payment_info, amount } = req.body;
+    const { product_id, payment_info, amount } = req.body;
+    const user_id = req.userId;
 
     const data = await Payment.createPayment(
       user_id,

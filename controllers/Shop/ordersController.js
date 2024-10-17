@@ -2,9 +2,8 @@ const Order = require("../../models/Shop/Order");
 
 exports.createOrder = async (req, res) => {
   try {
-    const { user_id, products, status, currency } = req.body;
-
-    // Assuming products is an array and you need to handle each product accordingly
+    const { products, status, currency } = req.body;
+    const user_id = req.userId;
     const orderData = {
       user_id,
       status,
