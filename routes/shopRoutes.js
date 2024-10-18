@@ -14,12 +14,8 @@ const verifyToken = require("../middlewares/authMiddleware");
 // Product routes
 router.get("/products", productsController.getProducts);
 router.get("/products/filter", productsController.filterProducts);
-router.post("/products", upload.array("image"), productsController.addProduct);
-router.put(
-  "/products/:id",
-  upload.array("image"),
-  productsController.updateProduct
-);
+router.post("/products", upload.any(), productsController.addProduct);
+router.put("/products/:id", upload.any(), productsController.updateProduct);
 router.delete("/products/:id", productsController.deleteProduct);
 
 // Brand routes

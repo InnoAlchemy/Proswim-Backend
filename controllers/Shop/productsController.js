@@ -54,35 +54,76 @@ exports.getProducts = async (req, res) => {
 
 exports.addProduct = async (req, res) => {
   try {
-    const images = req.files ? req.files.map((file) => file.filename) : [];
-
+    const images = req.files || [];
     const {
       title,
       description,
-      price, // the price object or array
-      colors,
+      price,
       product_info,
       genders,
       brand,
       sport,
       categories,
       stock,
+      images: bodyImages,
     } = req.body;
 
     // Parse fields if necessary
-    const parsedColors =
-      typeof colors === "string" ? JSON.parse(colors) : colors;
-    const parsedImages =
-      typeof images === "string" ? JSON.parse(images) : images;
     const parsedGenders =
       typeof genders === "string" ? JSON.parse(genders) : genders;
     const parsedCategories =
       typeof categories === "string" ? JSON.parse(categories) : categories;
 
     const parsedPrice = typeof price === "string" ? JSON.parse(price) : price;
-
     const priceInLBP = parsedPrice.find((p) => p.currency === "lbp")?.value;
     const priceInUSD = parsedPrice.find((p) => p.currency === "usd")?.value;
+
+    // Initialize Map for image grouping and Set for tracking assigned images
+    const allImagesMap = new Map();
+    const assignedImages = new Set();
+
+    // Loop through body images and group them by their colors
+    bodyImages.forEach((bodyImage, index) => {
+      const color = bodyImage.color || null; // Default to null if no color
+      const imageFilenames = images
+        .filter((file) => file.fieldname === `images[${index}][image]`)
+        .map((file) => file.filename);
+
+      if (imageFilenames.length > 0) {
+        if (!allImagesMap.has(color)) {
+          allImagesMap.set(color, []);
+        }
+        allImagesMap.get(color).push(...imageFilenames);
+        imageFilenames.forEach((filename) => assignedImages.add(filename));
+      }
+    });
+
+    // Prepare separate arrays for colored and null color images
+    const coloredImages = [];
+    const nullColorImages = [];
+
+    allImagesMap.forEach((image, color) => {
+      if (color === null) {
+        nullColorImages.push(...image); // Directly push images to nullColorImages
+      } else {
+        coloredImages.push({
+          color,
+          images: image,
+        });
+      }
+    });
+
+    // Add any images that haven't been assigned to a color to nullColorImages
+    const unassignedImages = images
+      .filter((file) => !assignedImages.has(file.filename))
+      .map((file) => file.filename);
+
+    if (unassignedImages.length > 0) {
+      nullColorImages.push(...unassignedImages); // Directly push images to nullColorImages
+    }
+
+    console.log("Colored Images:", coloredImages);
+    console.log("Null Color Images:", nullColorImages);
 
     const missingIds = await Product.checkIdsExist({
       categoryIds: parsedCategories,
@@ -109,45 +150,38 @@ exports.addProduct = async (req, res) => {
       description,
       priceInLBP,
       priceInUSD,
-      parsedColors,
+      coloredImages,
+      nullColorImages,
       product_info,
       parsedGenders,
       brand,
       sport,
       parsedCategories,
-      parsedImages,
       stock
     );
 
     if (product) {
       const formattedProduct = {
-        id: product.id, // Include the product ID
+        id: product.id,
         product_info: [
           {
-            title: product.title, // Keep title in product_info
-            description: product.description, // Keep description in product_info
+            title: product.title,
+            description: product.description,
           },
         ],
-
-        brand: product.brand, // Include brand ID
-        sport: product.sport, // Include sport ID
-        stock: product.stock, // Include stock quantity
-        categories: [product.categories], // Include categories
-        colors: [product.colors], // Include colors
-        genders: [product.genders], // Include genders
-        images: JSON.parse(product.images), // Parse images array
+        brand: product.brand,
+        sport: product.sport,
+        stock: product.stock,
+        categories: [product.categories],
+        colors: [product.colors],
+        genders: [product.genders],
+        images: JSON.parse(product.images),
         price: [
-          {
-            currency: "lbp",
-            value: product.price_lbp, // Keep LBP price
-          },
-          {
-            currency: "usd",
-            value: product.price_usd, // Keep USD price
-          },
+          { currency: "lbp", value: product.price_lbp },
+          { currency: "usd", value: product.price_usd },
         ],
-        created_at: product.created_at, // Include creation timestamp
-        updated_at: product.updated_at, // Include update timestamp
+        created_at: product.created_at,
+        updated_at: product.updated_at,
       };
 
       res.status(201).json({
@@ -156,10 +190,7 @@ exports.addProduct = async (req, res) => {
         data: [formattedProduct],
       });
     } else {
-      res.status(400).json({
-        error: true,
-        message: "Error creating product.",
-      });
+      res.status(400).json({ error: true, message: "Error creating product." });
     }
   } catch (error) {
     console.log(error);

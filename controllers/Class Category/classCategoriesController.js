@@ -1,5 +1,7 @@
 const express = require("express");
 const ClassCategories = require("../../models/ClassCategories");
+const Classes = require("../../models/Classes");
+
 const router = express.Router();
 
 exports.getClassCategories = async (req, res) => {
@@ -128,5 +130,54 @@ exports.deleteClassCategory = async (req, res) => {
     res
       .status(500)
       .json({ error: true, message: "Error deleting class category." });
+  }
+};
+
+exports.getClassCategoriesWithClasses = async (req, res) => {
+  try {
+    const classCategories = await ClassCategories.getAllCategories();
+
+    if (classCategories.length > 0) {
+      const formattedClassCategories = await Promise.all(
+        classCategories.map(async (category) => {
+          const classes = await Classes.getClassesByCategoryId(category.id);
+          const formattedClasses = classes.map((class_object) => ({
+            id: class_object.id,
+            markdown_text: class_object.markdown_text,
+            is_active: class_object.is_active,
+            button_text: class_object.button_text,
+            list_of_content: class_object.list_of_content || [],
+          }));
+
+          return {
+            id: category.id,
+            title: category.title,
+            description: category.description,
+            header_image: category.header_image,
+            is_active: category.is_active,
+            classes: formattedClasses,
+          };
+        })
+      );
+
+      res.status(200).json({
+        success: true,
+        message:
+          "Class categories with associated classes retrieved successfully.",
+        data: formattedClassCategories,
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: "No class categories found.",
+        data: [],
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while retrieving class categories and classes.",
+    });
   }
 };

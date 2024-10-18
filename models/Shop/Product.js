@@ -8,6 +8,7 @@ class Product {
           p.*, 
           GROUP_CONCAT(DISTINCT cat.title) AS categories, 
           GROUP_CONCAT(DISTINCT pc.color_id) AS colors, 
+          GROUP_CONCAT(DISTINCT pc.images) AS color_images, 
           GROUP_CONCAT(DISTINCT g.title) AS genders,
           b.title AS brand,
           s.title AS sport
@@ -26,7 +27,6 @@ class Product {
       throw err;
     }
   }
-
   static async getProduct(id) {
     try {
       const [rows] = await db.query(
@@ -55,13 +55,13 @@ class Product {
     description,
     price_usd,
     price_lbp,
-    colors,
+    coloredImages,
+    nullColorImages,
     product_info,
     genders,
     brand,
     sport,
     categories,
-    images,
     stock
   ) {
     try {
@@ -75,7 +75,7 @@ class Product {
           product_info,
           brand,
           sport,
-          JSON.stringify(images),
+          JSON.stringify(nullColorImages), // Store only the array of images
           stock,
         ]
       );
@@ -90,11 +90,11 @@ class Product {
           );
         }
       }
-      if (colors) {
-        for (const color of colors) {
+      if (coloredImages) {
+        for (const { color, images } of coloredImages) {
           await db.query(
-            "INSERT INTO product_colors (product_id, color_id) VALUES (?, ?)",
-            [newProductId, color]
+            "INSERT INTO product_colors (product_id, color_id, images) VALUES (?, ?, ?)",
+            [newProductId, color, JSON.stringify(images)]
           );
         }
       }

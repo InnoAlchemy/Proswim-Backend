@@ -13,6 +13,9 @@ const shopRoutes = require("./routes/shopRoutes");
 const footerRoutes = require("./routes/footerRoutes");
 const feebackRoutes = require("./routes/feedbackRoutes");
 const contactUsRoutes = require("./routes/contactUsRoutes");
+const categoriesWithClassesRoutes = require("./routes/categoriesWithClassesRoutes");
+const LearnToSwimLevelsWithSections = require("./routes/LearnToSwimLevelsWithSectionsRoutes");
+
 const path = require("path");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -42,9 +45,13 @@ app.use("/class-categories", classCategoriesRoutes);
 
 app.use("/classes", classesRoutes);
 
+app.use("/classes-and-categories", categoriesWithClassesRoutes);
+
 app.use("/about-us", aboutUsRoutes);
 
 app.use("/learn-to-swim", learnTowSwimRoutes);
+
+app.use("/learn-to-swim-sections-categories", LearnToSwimLevelsWithSections);
 
 app.use("/shop", shopRoutes);
 

@@ -224,3 +224,29 @@ exports.deleteLearnToSwimSection = async (req, res) => {
     });
   }
 };
+
+exports.getLearnToSwimLevelsWithSections = async (req, res) => {
+  try {
+    const levels = await LearnToSwim.getAllLevels();
+
+    const sections = await LearnToSwim.getLearnToSwimSections();
+    const levelsWithSections = levels.map((level) => {
+      return {
+        ...level,
+        sections: sections.filter((section) => section.level_id === level.id), // Find sections for each level
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Learn to Swim levels with sections retrieved successfully.",
+      data: levelsWithSections,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving Learn to Swim levels and sections.",
+    });
+  }
+};
