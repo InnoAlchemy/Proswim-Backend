@@ -8,13 +8,17 @@ class Product {
           p.*, 
           GROUP_CONCAT(DISTINCT cat.title) AS categories, 
           GROUP_CONCAT(DISTINCT pc.color_id) AS colors, 
-          GROUP_CONCAT(DISTINCT g.title) AS genders
+          GROUP_CONCAT(DISTINCT g.title) AS genders,
+          b.title AS brand,
+          s.title AS sport
         FROM products p
         LEFT JOIN product_categories pc2 ON p.id = pc2.product_id
         LEFT JOIN categories cat ON pc2.category_id = cat.id
         LEFT JOIN product_genders pg ON p.id = pg.product_id
         LEFT JOIN genders g ON pg.gender_id = g.id
         LEFT JOIN product_colors pc ON p.id = pc.product_id
+        LEFT JOIN brands b ON p.brand = b.id
+        LEFT JOIN sports s ON p.sport = s.id
         GROUP BY p.id
       `);
       return rows;

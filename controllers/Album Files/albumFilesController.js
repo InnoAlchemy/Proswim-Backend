@@ -11,7 +11,7 @@ exports.getAlbumFiles = async (req, res) => {
         title: albumFile.title,
         album_id: albumFile.album_id,
         collection_number: albumFile.collection_number,
-        file: albumFile.file,
+        files: JSON.parse(albumFile.files),
         short_description: albumFile.short_description,
       }));
 
@@ -37,22 +37,29 @@ exports.getAlbumFiles = async (req, res) => {
 
 exports.addAlbumFile = async (req, res) => {
   try {
-    const { title, album_id, collection_number, file, short_description } =
-      req.body;
+    const { title, album_id, collection_number, short_description } = req.body;
+    const files = req.files ? req.files.map((file) => file.filename) : [];
+    const parsedfiles = typeof images === "string" ? JSON.parse(files) : files;
 
     const data = await AlbumFiles.createAlbumFile(
       title,
       album_id,
       collection_number,
-      file,
+      JSON.stringify(parsedfiles), // Store files as an array
       short_description
     );
     res.status(200).json({
       success: true,
-      message: "Album Files Created Succefully.",
-      data: [data],
+      message: "Album Files Created Successfully.",
+      data: [
+        {
+          ...data,
+          files: JSON.parse(data.files),
+        },
+      ],
     });
   } catch (error) {
+    console.log(error);
     res.status(404).json({
       error: true,
       message: "Error creating Album Files.",
@@ -62,30 +69,34 @@ exports.addAlbumFile = async (req, res) => {
 //
 exports.updateAlbumFile = async (req, res) => {
   try {
-    const { id, title, album_id, collection_number, file, short_description } =
-      req.body;
-    console.log(req.body);
+    const { title, album_id, collection_number, short_description } = req.body;
+    const id = req.params.id;
+    let files = req.files ? req.files.map((file) => file.filename) : [];
+
+    const parsedfiles = files.length > 0 ? JSON.stringify(files) : null;
+
     const albumFile = await AlbumFiles.updateAlbumFile(
       id,
       title,
       album_id,
       collection_number,
-      file,
+      parsedfiles,
       short_description
     );
+
     if (albumFile) {
       const formattedAlbumFiles = {
         id: albumFile.id,
         title: albumFile.title,
         album_id: albumFile.album_id,
         collection_number: albumFile.collection_number,
-        file: albumFile.file,
+        files: albumFile.files ? JSON.parse(albumFile.files) : [],
         short_description: albumFile.short_description,
       };
 
       res.status(200).json({
         success: true,
-        message: "Album Files Updated Succefully.",
+        message: "Album Files Updated Successfully.",
         data: formattedAlbumFiles,
       });
     } else {
@@ -99,14 +110,13 @@ exports.updateAlbumFile = async (req, res) => {
     res.status(500).json({ message: "Server error." });
   }
 };
+
 //
 
 exports.deleteAlbumFile = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log(id);
     const albumFile = await AlbumFiles.deleteAlbumFile(id);
-    console.log(albumFile);
     if (albumFile) {
       res.status(200).json({
         success: true,

@@ -28,13 +28,13 @@ class Album {
     title,
     album_id,
     collection_number,
-    file,
+    files,
     short_description
   ) {
     try {
       const result = await db.query(
-        "INSERT INTO album_files (title, album_id, collection_number, file, short_description) VALUES (?, ?, ?, ?, ?)",
-        [title, album_id, collection_number, file, short_description]
+        "INSERT INTO album_files (title, album_id, collection_number, files, short_description) VALUES (?, ?, ?, ?, ?)",
+        [title, album_id, collection_number, files, short_description]
       );
       const [newAlbumFile] = await db.query(
         "SELECT * FROM album_files WHERE id = LAST_INSERT_ID()"
@@ -50,15 +50,24 @@ class Album {
     title,
     album_id,
     collection_number,
-    file,
+    files,
     short_description
   ) {
     try {
-      const res = await db.query(
-        "UPDATE album_files SET title = ?, album_id = ? , collection_number = ?, file = ?, short_description = ? WHERE id = ?",
-        [title, album_id, collection_number, file, short_description, id]
-      );
-      console.log(res);
+      let query =
+        "UPDATE album_files SET title = ?, album_id = ?, collection_number = ?, short_description = ?";
+      let queryParams = [title, album_id, collection_number, short_description];
+
+      if (files) {
+        query += ", files = ?";
+        queryParams.push(files);
+      }
+
+      query += " WHERE id = ?";
+      queryParams.push(id);
+
+      await db.query(query, queryParams);
+
       const [updatedAlbumFile] = await db.query(
         "SELECT * FROM album_files WHERE id = ?",
         [id]
