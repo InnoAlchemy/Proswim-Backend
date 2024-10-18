@@ -7,11 +7,10 @@ class Product {
         SELECT 
           p.*, 
           GROUP_CONCAT(DISTINCT cat.title) AS categories, 
-          GROUP_CONCAT(DISTINCT pc.color_id) AS colors, 
-          GROUP_CONCAT(DISTINCT pc.images) AS color_images, 
           GROUP_CONCAT(DISTINCT g.title) AS genders,
           b.title AS brand,
-          s.title AS sport
+          s.title AS sport,
+          GROUP_CONCAT(DISTINCT JSON_OBJECT('title', pi.title, 'description', pi.description)) AS product_info
         FROM products p
         LEFT JOIN product_categories pc2 ON p.id = pc2.product_id
         LEFT JOIN categories cat ON pc2.category_id = cat.id
@@ -20,6 +19,7 @@ class Product {
         LEFT JOIN product_colors pc ON p.id = pc.product_id
         LEFT JOIN brands b ON p.brand = b.id
         LEFT JOIN sports s ON p.sport = s.id
+        LEFT JOIN product_info pi ON p.id = pi.product_id
         GROUP BY p.id
       `);
       return rows;
@@ -27,6 +27,7 @@ class Product {
       throw err;
     }
   }
+
   static async getProduct(id) {
     try {
       const [rows] = await db.query(
@@ -55,8 +56,7 @@ class Product {
     description,
     price_usd,
     price_lbp,
-    coloredImages,
-    nullColorImages,
+    combinedImages,
     product_info,
     genders,
     brand,
@@ -66,16 +66,15 @@ class Product {
   ) {
     try {
       const [result] = await db.query(
-        "INSERT INTO products (title, description, price_usd, price_lbp, product_info, brand, sport, images, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO products (title, description, price_usd, price_lbp, brand, sport, images, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
         [
           title,
           description,
           price_usd,
           price_lbp,
-          product_info,
           brand,
           sport,
-          JSON.stringify(nullColorImages), // Store only the array of images
+          JSON.stringify(combinedImages), // Store only the array of images
           stock,
         ]
       );
@@ -90,14 +89,6 @@ class Product {
           );
         }
       }
-      if (coloredImages) {
-        for (const { color, images } of coloredImages) {
-          await db.query(
-            "INSERT INTO product_colors (product_id, color_id, images) VALUES (?, ?, ?)",
-            [newProductId, color, JSON.stringify(images)]
-          );
-        }
-      }
       if (genders) {
         for (const gender of genders) {
           await db.query(
@@ -107,17 +98,31 @@ class Product {
         }
       }
 
+      if (product_info && Array.isArray(product_info)) {
+        for (const info of product_info) {
+          const parsedInfo = JSON.parse(info);
+          await db.query(
+            "INSERT INTO product_info (product_id, title, description) VALUES (?, ?, ?)",
+            [newProductId, parsedInfo.title, parsedInfo.description]
+          );
+        }
+      }
+
       const [newProduct] = await db.query(
         `
         SELECT 
           p.*, 
           GROUP_CONCAT(DISTINCT c.category_id) AS categories, 
-          GROUP_CONCAT(DISTINCT col.color_id) AS colors, 
-          GROUP_CONCAT(DISTINCT g.gender_id) AS genders
+          GROUP_CONCAT(DISTINCT g.gender_id) AS genders,
+          GROUP_CONCAT(DISTINCT JSON_OBJECT('title', pi.title, 'description', pi.description)) AS product_info,
+          b.title AS brand,
+          s.title AS sport
         FROM products p
         LEFT JOIN product_categories c ON p.id = c.product_id
-        LEFT JOIN product_colors col ON p.id = col.product_id
         LEFT JOIN product_genders g ON p.id = g.product_id
+        LEFT JOIN product_info pi ON p.id = pi.product_id
+        LEFT JOIN brands b ON p.brand = b.id
+        LEFT JOIN sports s ON p.sport = s.id
         WHERE p.id = ?   -- Filtering by specific product ID
         GROUP BY p.id
         `,
@@ -134,39 +139,32 @@ class Product {
     id,
     title,
     description,
-    price_usd,
     price_lbp,
-    colors,
+    price_usd,
+    combinedImages,
     product_info,
     genders,
     brand,
     sport,
     categories,
-    images,
     stock
   ) {
     try {
       // Update product details
       let query =
-        "UPDATE products SET title = ?, description = ?, price_usd = ?, price_lbp = ?,  product_info = ?, brand = ?, sport = ?, stock = ?";
+        "UPDATE products SET title = ?, description = ?, price_usd = ?, price_lbp = ?, brand = ?, sport = ?, images = ?, stock = ? WHERE id = ?";
       const queryParams = [
         title,
         description,
         price_usd,
         price_lbp,
-        product_info,
         brand,
         sport,
+        JSON.stringify(combinedImages),
         stock,
         id,
       ];
 
-      if (images !== null) {
-        query += ", images = ?";
-        queryParams.splice(queryParams.length - 1, 0, JSON.stringify(images));
-      }
-
-      query += " WHERE id = ?";
       await db.query(query, queryParams);
 
       // Update related tables
@@ -182,16 +180,6 @@ class Product {
         }
       }
 
-      await db.query("DELETE FROM product_colors WHERE product_id = ?", [id]);
-      if (colors) {
-        for (const color of colors) {
-          await db.query(
-            "INSERT INTO product_colors (product_id, color_id) VALUES (?, ?)",
-            [id, color]
-          );
-        }
-      }
-
       await db.query("DELETE FROM product_genders WHERE product_id = ?", [id]);
       if (genders) {
         for (const gender of genders) {
@@ -202,17 +190,32 @@ class Product {
         }
       }
 
+      await db.query("DELETE FROM product_info WHERE product_id = ?", [id]);
+      if (product_info && Array.isArray(product_info)) {
+        for (const info of product_info) {
+          const parsedInfo = JSON.parse(info);
+          await db.query(
+            "INSERT INTO product_info (product_id, title, description) VALUES (?, ?, ?)",
+            [id, parsedInfo.title, parsedInfo.description]
+          );
+        }
+      }
+
       const [updatedProduct] = await db.query(
         `
         SELECT 
           p.*, 
           GROUP_CONCAT(DISTINCT c.category_id) AS categories, 
-          GROUP_CONCAT(DISTINCT col.color_id) AS colors, 
-          GROUP_CONCAT(DISTINCT g.gender_id) AS genders
+          GROUP_CONCAT(DISTINCT g.gender_id) AS genders,
+          GROUP_CONCAT(DISTINCT JSON_OBJECT('title', pi.title, 'description', pi.description)) AS product_info,
+          b.title AS brand,
+          s.title AS sport
         FROM products p
         LEFT JOIN product_categories c ON p.id = c.product_id
-        LEFT JOIN product_colors col ON p.id = col.product_id
         LEFT JOIN product_genders g ON p.id = g.product_id
+        LEFT JOIN product_info pi ON p.id = pi.product_id
+        LEFT JOIN brands b ON p.brand = b.id
+        LEFT JOIN sports s ON p.sport = s.id
         WHERE p.id = ?   -- Filtering by specific product ID
         GROUP BY p.id
         `,

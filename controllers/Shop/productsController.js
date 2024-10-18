@@ -8,17 +8,14 @@ exports.getProducts = async (req, res) => {
     if (products.length > 0) {
       const formattedProducts = products.map((product) => ({
         id: product.id, // Include the product ID
-        product_info: [
-          {
-            title: product.title, // Keep title in product_info
-            description: product.description, // Keep description in product_info
-          },
-        ],
+        title: product.title,
+        description: product.description,
+        ...product,
+        product_info: JSON.parse(`[${product.product_info}]`), // Convert string to JSON array
         brand: product.brand, // Include brand ID
         sport: product.sport, // Include sport ID
         stock: product.stock, // Include stock quantity
         categories: [product.categories], // Include categories
-        colors: [product.colors], // Include colors
         genders: [product.genders], // Include genders
         images: JSON.parse(product.images), // Parse images array
         price: [
@@ -102,6 +99,7 @@ exports.addProduct = async (req, res) => {
     const coloredImages = [];
     const nullColorImages = [];
 
+    // Populate the colored and null color arrays
     allImagesMap.forEach((image, color) => {
       if (color === null) {
         nullColorImages.push(...image); // Directly push images to nullColorImages
@@ -122,8 +120,14 @@ exports.addProduct = async (req, res) => {
       nullColorImages.push(...unassignedImages); // Directly push images to nullColorImages
     }
 
-    console.log("Colored Images:", coloredImages);
-    console.log("Null Color Images:", nullColorImages);
+    // Combine coloredImages and nullColorImages into the desired output format
+    const combinedImages = {
+      generic: nullColorImages, // Uncolored images
+      colored: coloredImages, // Colored images
+    };
+
+    // Log the output in the desired format
+    console.log(combinedImages);
 
     const missingIds = await Product.checkIdsExist({
       categoryIds: parsedCategories,
@@ -150,8 +154,7 @@ exports.addProduct = async (req, res) => {
       description,
       priceInLBP,
       priceInUSD,
-      coloredImages,
-      nullColorImages,
+      combinedImages,
       product_info,
       parsedGenders,
       brand,
@@ -163,22 +166,24 @@ exports.addProduct = async (req, res) => {
     if (product) {
       const formattedProduct = {
         id: product.id,
-        product_info: [
-          {
-            title: product.title,
-            description: product.description,
-          },
-        ],
+        title: product.title,
+        description: product.description,
         brand: product.brand,
         sport: product.sport,
         stock: product.stock,
+        product_info: JSON.parse(`[${product.product_info}]`),
         categories: [product.categories],
-        colors: [product.colors],
         genders: [product.genders],
         images: JSON.parse(product.images),
         price: [
-          { currency: "lbp", value: product.price_lbp },
-          { currency: "usd", value: product.price_usd },
+          {
+            currency: "lbp",
+            value: product.price_lbp,
+          },
+          {
+            currency: "usd",
+            value: product.price_usd,
+          },
         ],
         created_at: product.created_at,
         updated_at: product.updated_at,
@@ -200,37 +205,85 @@ exports.addProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    const images = req.files ? req.files.map((file) => file.filename) : [];
-
+    const images = req.files || [];
     const {
       title,
       description,
-      price, // the price object or array
-      colors,
+      price,
       product_info,
       genders,
       brand,
       sport,
       categories,
       stock,
+      images: bodyImages,
     } = req.body;
 
     const { id } = req.params;
 
     // Parse fields if necessary
-    const parsedColors =
-      typeof colors === "string" ? JSON.parse(colors) : colors;
-    const parsedImages =
-      typeof images === "string" ? JSON.parse(images) : images;
     const parsedGenders =
       typeof genders === "string" ? JSON.parse(genders) : genders;
     const parsedCategories =
       typeof categories === "string" ? JSON.parse(categories) : categories;
 
     const parsedPrice = typeof price === "string" ? JSON.parse(price) : price;
-
     const priceInLBP = parsedPrice.find((p) => p.currency === "lbp")?.value;
     const priceInUSD = parsedPrice.find((p) => p.currency === "usd")?.value;
+
+    // Initialize Map for image grouping and Set for tracking assigned images
+    const allImagesMap = new Map();
+    const assignedImages = new Set();
+
+    // Loop through body images and group them by their colors
+    bodyImages.forEach((bodyImage, index) => {
+      const color = bodyImage.color || null; // Default to null if no color
+      const imageFilenames = images
+        .filter((file) => file.fieldname === `images[${index}][image]`)
+        .map((file) => file.filename);
+
+      if (imageFilenames.length > 0) {
+        if (!allImagesMap.has(color)) {
+          allImagesMap.set(color, []);
+        }
+        allImagesMap.get(color).push(...imageFilenames);
+        imageFilenames.forEach((filename) => assignedImages.add(filename));
+      }
+    });
+
+    // Prepare separate arrays for colored and null color images
+    const coloredImages = [];
+    const nullColorImages = [];
+
+    // Populate the colored and null color arrays
+    allImagesMap.forEach((image, color) => {
+      if (color === null) {
+        nullColorImages.push(...image); // Directly push images to nullColorImages
+      } else {
+        coloredImages.push({
+          color,
+          images: image,
+        });
+      }
+    });
+
+    // Add any images that haven't been assigned to a color to nullColorImages
+    const unassignedImages = images
+      .filter((file) => !assignedImages.has(file.filename))
+      .map((file) => file.filename);
+
+    if (unassignedImages.length > 0) {
+      nullColorImages.push(...unassignedImages); // Directly push images to nullColorImages
+    }
+
+    // Combine coloredImages and nullColorImages into the desired output format
+    const combinedImages = {
+      generic: nullColorImages, // Uncolored images
+      colored: coloredImages, // Colored images
+    };
+
+    // Log the output in the desired format
+    console.log(combinedImages);
 
     const missingIds = await Product.checkIdsExist({
       categoryIds: parsedCategories,
@@ -258,45 +311,39 @@ exports.updateProduct = async (req, res) => {
       description,
       priceInLBP,
       priceInUSD,
-      parsedColors,
+      combinedImages,
       product_info,
       parsedGenders,
       brand,
       sport,
       parsedCategories,
-      parsedImages,
       stock
     );
 
     if (product) {
       const formattedProduct = {
-        id: product.id, // Include the product ID
-        product_info: [
-          {
-            title: product.title, // Keep title in product_info
-            description: product.description, // Keep description in product_info
-          },
-        ],
-
-        brand: product.brand, // Include brand ID
-        sport: product.sport, // Include sport ID
-        stock: product.stock, // Include stock quantity
-        categories: [product.categories], // Include categories
-        colors: [product.colors], // Include colors
-        genders: [product.genders], // Include genders
-        images: JSON.parse(product.images), // Parse images array
+        id: product.id,
+        title: product.title,
+        description: product.description,
+        brand: product.brand,
+        sport: product.sport,
+        stock: product.stock,
+        product_info: JSON.parse(`[${product.product_info}]`),
+        categories: [product.categories],
+        genders: [product.genders],
+        images: JSON.parse(product.images),
         price: [
           {
             currency: "lbp",
-            value: product.price_lbp, // Keep LBP price
+            value: product.price_lbp,
           },
           {
             currency: "usd",
-            value: product.price_usd, // Keep USD price
+            value: product.price_usd,
           },
         ],
-        created_at: product.created_at, // Include creation timestamp
-        updated_at: product.updated_at, // Include update timestamp
+        created_at: product.created_at,
+        updated_at: product.updated_at,
       };
 
       res.status(200).json({

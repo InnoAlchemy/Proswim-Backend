@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 18, 2024 at 10:49 AM
+-- Generation Time: Oct 18, 2024 at 04:44 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -347,10 +347,10 @@ CREATE TABLE `products` (
   `description` text DEFAULT NULL,
   `price_usd` decimal(10,2) NOT NULL,
   `price_lbp` decimal(10,3) NOT NULL DEFAULT 0.000,
-  `product_info` text DEFAULT NULL,
+  `product_info` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`product_info`)),
   `brand` varchar(100) DEFAULT NULL,
   `sport` varchar(50) DEFAULT NULL,
-  `images` varchar(255) DEFAULT NULL,
+  `images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`images`)),
   `stock` int(11) NOT NULL DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -374,8 +374,9 @@ CREATE TABLE `product_categories` (
 --
 
 CREATE TABLE `product_colors` (
-  `product_id` int(11) NOT NULL,
-  `color_id` varchar(10) NOT NULL
+  `id` int(11) NOT NULL,
+  `product_id` int(11) DEFAULT NULL,
+  `colors` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`colors`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -387,6 +388,18 @@ CREATE TABLE `product_colors` (
 CREATE TABLE `product_genders` (
   `product_id` int(11) NOT NULL,
   `gender_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `product_info`
+--
+
+CREATE TABLE `product_info` (
+  `product_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -638,7 +651,8 @@ ALTER TABLE `product_categories`
 -- Indexes for table `product_colors`
 --
 ALTER TABLE `product_colors`
-  ADD PRIMARY KEY (`product_id`,`color_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `product_id` (`product_id`);
 
 --
 -- Indexes for table `product_genders`
@@ -646,6 +660,13 @@ ALTER TABLE `product_colors`
 ALTER TABLE `product_genders`
   ADD PRIMARY KEY (`product_id`,`gender_id`),
   ADD KEY `gender_id` (`gender_id`);
+
+--
+-- Indexes for table `product_info`
+--
+ALTER TABLE `product_info`
+  ADD PRIMARY KEY (`title`,`product_id`),
+  ADD KEY `product_id` (`product_id`);
 
 --
 -- Indexes for table `social_links`
@@ -836,6 +857,12 @@ ALTER TABLE `products`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `product_colors`
+--
+ALTER TABLE `product_colors`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `social_links`
 --
 ALTER TABLE `social_links`
@@ -919,6 +946,12 @@ ALTER TABLE `product_colors`
 ALTER TABLE `product_genders`
   ADD CONSTRAINT `product_genders_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `product_genders_ibfk_2` FOREIGN KEY (`gender_id`) REFERENCES `genders` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `product_info`
+--
+ALTER TABLE `product_info`
+  ADD CONSTRAINT `product_info_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`);
 
 --
 -- Constraints for table `swim_content`
