@@ -111,9 +111,7 @@ exports.updateClassCategory = async (req, res) => {
 exports.deleteClassCategory = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log(id);
     const classCategory = await ClassCategories.deleteCategory(id);
-    console.log(classCategory);
     if (classCategory) {
       res.status(200).json({
         success: true,
@@ -136,45 +134,24 @@ exports.deleteClassCategory = async (req, res) => {
 exports.getClassCategoriesWithClasses = async (req, res) => {
   try {
     const classCategories = await ClassCategories.getAllCategories();
+    const classes = await Classes.getAllClasses();
+    const formattedClassCategories = classCategories.map((category) => {
+      return {
+        ...category,
+        classes: classes.filter(
+          (class_object) => class_object.class_category_id == category.id
+        ),
+      };
+    });
 
-    if (classCategories.length > 0) {
-      const formattedClassCategories = await Promise.all(
-        classCategories.map(async (category) => {
-          const classes = await Classes.getClassesByCategoryId(category.id);
-          const formattedClasses = classes.map((class_object) => ({
-            id: class_object.id,
-            markdown_text: class_object.markdown_text,
-            is_active: class_object.is_active,
-            button_text: class_object.button_text,
-            list_of_content: class_object.list_of_content || [],
-          }));
-
-          return {
-            id: category.id,
-            title: category.title,
-            description: category.description,
-            header_image: category.header_image,
-            is_active: category.is_active,
-            classes: formattedClasses,
-          };
-        })
-      );
-
-      res.status(200).json({
-        success: true,
-        message:
-          "Class categories with associated classes retrieved successfully.",
-        data: formattedClassCategories,
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        message: "No class categories found.",
-        data: [],
-      });
-    }
+    res.status(200).json({
+      success: true,
+      message:
+        "Class categories with associated classes retrieved successfully.",
+      data: formattedClassCategories,
+    });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({
       success: false,
       message: "Server error while retrieving class categories and classes.",

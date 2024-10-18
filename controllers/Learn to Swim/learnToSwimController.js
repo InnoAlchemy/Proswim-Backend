@@ -228,7 +228,7 @@ exports.getLearnToSwimLevelsWithSections = async (req, res) => {
     const levelsWithSections = levels.map((level) => {
       return {
         ...level,
-        sections: sections.filter((section) => section.level_id === level.id), // Find sections for each level
+        sections: sections.filter((section) => section.level_id == level.id),
       };
     });
 
