@@ -1,9 +1,14 @@
-const ContactUs = require("../../models/ContactUs"); // Assuming you have a ContactUs model
+const ContactUs = require("../../models/ContactUs");
+const { sendEmail } = require("../../helper/emailService");
 
 exports.submitContactUsForm = async (req, res) => {
   try {
     const { user_id, subject, body, email } = req.body;
     await ContactUs.createFormSubmission(user_id, subject, body, email);
+
+    const text = `User ID: ${user_id}\nSubject: ${subject}\nBody: ${body}\nEmail: ${email}`;
+
+    await sendEmail(process.env.EMAIL_USER, subject, text);
 
     res.status(201).json({
       success: true,

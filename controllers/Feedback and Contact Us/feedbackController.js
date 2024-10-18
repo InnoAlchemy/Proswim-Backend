@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const Feedback = require("../../models/Feedback"); // Assuming you have a Feedback model
+const Feedback = require("../../models/Feedback");
+const { sendEmail } = require("../../helper/emailService");
 
 exports.submitFeedback = async (req, res) => {
   try {
@@ -11,6 +12,10 @@ exports.submitFeedback = async (req, res) => {
       body,
       email,
     });
+
+    const text = `User ID: ${user_id}\nSubject: ${subject}\nBody: ${body}\nEmail: ${email}`;
+    await sendEmail(process.env.EMAIL_USER, subject, text);
+
     res.status(201).json({
       success: true,
       message: "Feedback submitted successfully.",
