@@ -28,10 +28,19 @@ class SocialLink {
 
   static async updateSocialLink(id, { icon, link, is_active }) {
     try {
-      await db.query(
-        "UPDATE social_links SET icon = ?, link = ?, is_active = ? WHERE id = ?",
-        [icon, link, is_active, id]
-      );
+      let query = "UPDATE social_links SET link = ?, is_active = ?";
+      let params = [link, is_active];
+
+      if (icon !== null) {
+        query += ", icon = ?";
+        params.push(icon);
+      }
+
+      query += " WHERE id = ?";
+      params.push(id);
+
+      await db.query(query, params);
+
       const [updatedSocialLink] = await db.query(
         "SELECT * FROM social_links WHERE id = ?",
         [id]

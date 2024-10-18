@@ -3,6 +3,7 @@ const router = express.Router();
 const phoneNumbersController = require("../controllers/Footer/phoneNumbersController");
 const descriptionsController = require("../controllers/Footer/descriptionsController");
 const socialLinksController = require("../controllers/Footer/socialLinksController");
+const upload = require("../helper/uploadHandler");
 
 // Routes for managing phone numbers
 router.get("/phone-numbers", phoneNumbersController.getPhoneNumbers); // Get all phone numbers
@@ -18,8 +19,16 @@ router.delete("/description", descriptionsController.deleteDescription); // Dele
 
 // Routes for managing social links
 router.get("/social-links", socialLinksController.getSocialLinks); // Get all social links
-router.post("/social-links", socialLinksController.createSocialLink); // Create a new social link
-router.put("/social-links/:id", socialLinksController.updateSocialLink); // Update a social link by ID
+router.post(
+  "/social-links",
+  upload.single("icon"),
+  socialLinksController.createSocialLink
+); // Create a new social link
+router.put(
+  "/social-links/:id",
+  upload.single("icon"),
+  socialLinksController.updateSocialLink
+); // Update a social link by ID
 router.delete("/social-links/:id", socialLinksController.deleteSocialLink); // Delete a social link by ID
 
 module.exports = router;

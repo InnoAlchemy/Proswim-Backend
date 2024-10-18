@@ -21,7 +21,9 @@ exports.getSocialLinks = async (req, res) => {
 
 exports.createSocialLink = async (req, res) => {
   try {
-    const { icon, link, is_active } = req.body;
+    const { link, is_active } = req.body;
+    const icon = req.file ? req.file.filename : null;
+
     const socialLink = await SocialLink.createSocialLink({
       icon,
       link,
@@ -44,7 +46,9 @@ exports.createSocialLink = async (req, res) => {
 exports.updateSocialLink = async (req, res) => {
   try {
     const { id } = req.params;
-    const { icon, link, is_active } = req.body;
+    const { link, is_active } = req.body;
+    const icon = req.file ? req.file.filename : null;
+
     const socialLink = await SocialLink.updateSocialLink(id, {
       icon,
       link,
