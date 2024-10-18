@@ -34,11 +34,10 @@ exports.getAboutUsCategories = async (req, res) => {
 
 exports.addAboutUsCategory = async (req, res) => {
   try {
-    const { id, title, markdown_text, is_active } = req.body;
+    const { title, markdown_text, is_active } = req.body;
     const header_image = req.file ? req.file.filename : null;
 
-    await AboutUs.createCategory(
-      id,
+    const id = await AboutUs.createCategory(
       title,
       markdown_text,
       header_image,
@@ -48,7 +47,6 @@ exports.addAboutUsCategory = async (req, res) => {
     const category = await AboutUs.getCategory(id);
     if (category) {
       const formattedCategory = {
-        id: category.id,
         title: category.title,
         markdown_text: category.markdown_text,
         header_image: category.header_image,

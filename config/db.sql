@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 15, 2024 at 10:01 PM
+-- Generation Time: Oct 18, 2024 at 09:48 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -109,10 +109,9 @@ CREATE TABLE `brands` (
 
 CREATE TABLE `cart_items` (
   `id` int(11) NOT NULL,
-  `product_id` varchar(50) NOT NULL,
-  `user_id` varchar(50) NOT NULL,
-  `quantity` int(11) NOT NULL CHECK (`quantity` > 0),
-  `price` decimal(10,2) NOT NULL
+  `product_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL CHECK (`quantity` > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -272,7 +271,8 @@ CREATE TABLE `lts_buttons` (
 CREATE TABLE `orders` (
   `order_id` int(11) NOT NULL,
   `user_id` varchar(50) DEFAULT NULL,
-  `total_price` decimal(10,2) DEFAULT NULL,
+  `total_price` decimal(10,0) DEFAULT NULL,
+  `currency` enum('LBP','USD') DEFAULT 'USD',
   `status` enum('pending','completed','canceled') DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -345,7 +345,8 @@ CREATE TABLE `products` (
   `id` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
-  `price` decimal(10,2) NOT NULL,
+  `price_usd` decimal(10,2) NOT NULL,
+  `price_lbp` decimal(10,3) NOT NULL DEFAULT 0.000,
   `product_info` text DEFAULT NULL,
   `brand` varchar(100) DEFAULT NULL,
   `sport` varchar(50) DEFAULT NULL,
@@ -879,7 +880,7 @@ ALTER TABLE `users`
 --
 ALTER TABLE `cart_items`
   ADD CONSTRAINT `cart_items_ibfk_1` FOREIGN KEY (`id`) REFERENCES `products` (`id`),
-  ADD CONSTRAINT `cart_items_ibfk_2` FOREIGN KEY (`id`) REFERENCES `users` (`id`);
+  ADD CONSTRAINT `cart_items_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `classes`

@@ -27,14 +27,14 @@ class AboutUs {
 
   static async createCategory(title, markdown_text, header_image, is_active) {
     try {
-      const result = await db.query(
+      const [result] = await db.query(
         "INSERT INTO about_us_categories (title, markdown_text, header_image, is_active) VALUES (?, ?, ?, ?)",
         [title, markdown_text, header_image, is_active]
       );
       const [newCategory] = await db.query(
         "SELECT * FROM about_us_categories WHERE id = LAST_INSERT_ID()"
       );
-      return newCategory[0];
+      return result.insertId;
     } catch (err) {
       throw err;
     }
