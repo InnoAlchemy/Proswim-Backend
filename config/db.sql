@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 18, 2024 at 09:48 AM
+-- Generation Time: Oct 18, 2024 at 10:49 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -72,7 +72,7 @@ CREATE TABLE `album_files` (
   `title` varchar(255) NOT NULL,
   `album_id` varchar(255) NOT NULL,
   `collection_number` int(11) NOT NULL,
-  `file` varchar(255) NOT NULL,
+  `files` varchar(255) NOT NULL,
   `short_description` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
