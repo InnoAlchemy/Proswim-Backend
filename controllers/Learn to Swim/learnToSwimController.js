@@ -111,14 +111,10 @@ exports.addLearnToSwimSection = async (req, res) => {
     const { level_id, title, markdown_text, list_of_content, is_active } =
       req.body;
 
-    const header_image =
-      req.files && req.files["header_image"]
-        ? req.files["header_image"][0].filename
-        : null;
-    const images =
-      req.files && req.files["image"]
-        ? req.files["image"].map((file) => file.filename)
-        : [];
+    const header_image = req.files
+      ? req.files.find((image) => image.fieldname === "header_image")
+      : null;
+    const header_image_name = header_image ? header_image.filename : null;
 
     const parsedContentList = list_of_content.map((content) =>
       typeof content === "string" ? JSON.parse(content) : content
@@ -126,16 +122,21 @@ exports.addLearnToSwimSection = async (req, res) => {
 
     if (parsedContentList && Array.isArray(parsedContentList)) {
       parsedContentList.forEach((content, index) => {
-        content.image = images[index] || null;
+        const imageFieldName = `list_of_content[${index}]`;
+        const imageFile = req.files
+          ? req.files.find((image) => image.fieldname === imageFieldName)
+          : null;
+        content.image = imageFile ? imageFile.filename : null;
       });
     }
 
+    // Create the new section
     const newSection = await LearnToSwim.createSection(
       level_id,
       title,
       markdown_text,
       parsedContentList,
-      header_image,
+      header_image_name,
       is_active
     );
 
@@ -146,14 +147,6 @@ exports.addLearnToSwimSection = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-
-    if (error.name === "ValidationError") {
-      return res.status(400).json({
-        success: false,
-        message: error.message,
-      });
-    }
-
     res.status(500).json({
       success: false,
       message: "Error creating Learn to Swim section. Please try again later.",
@@ -166,14 +159,11 @@ exports.updateLearnToSwimSection = async (req, res) => {
     const { id } = req.params;
     const { level_id, title, markdown_text, list_of_content, is_active } =
       req.body;
-    const header_image =
-      req.files && req.files["header_image"]
-        ? req.files["header_image"][0].filename
-        : null;
-    const images =
-      req.files && req.files["image"]
-        ? req.files["image"].map((file) => file.filename)
-        : [];
+
+    const header_image = req.files
+      ? req.files.find((image) => image.fieldname === "header_image")
+      : null;
+    const header_image_name = header_image ? header_image.filename : null;
 
     const parsedContentList = list_of_content.map((content) =>
       typeof content === "string" ? JSON.parse(content) : content
@@ -181,16 +171,21 @@ exports.updateLearnToSwimSection = async (req, res) => {
 
     if (parsedContentList && Array.isArray(parsedContentList)) {
       parsedContentList.forEach((content, index) => {
-        content.image = images[index] || null;
+        const imageFieldName = `list_of_content[${index}]`;
+        const imageFile = req.files
+          ? req.files.find((image) => image.fieldname === imageFieldName)
+          : null;
+        content.image = imageFile ? imageFile.filename : null;
       });
     }
+
     const updatedSection = await LearnToSwim.updateSection(
       id,
       level_id,
       title,
       markdown_text,
       parsedContentList,
-      header_image,
+      header_image_name,
       is_active
     );
 
@@ -201,8 +196,8 @@ exports.updateLearnToSwimSection = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(400).json({
-      error: true,
+    res.status(500).json({
+      success: false,
       message: "Error updating Learn to Swim section.",
     });
   }

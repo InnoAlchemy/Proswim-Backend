@@ -22,18 +22,12 @@ router.delete("/levels/:id", learnToSwimController.deleteLearnToSwimLevel); // D
 router.get("/sections", learnToSwimController.getLearnToSwimSections); // Get Learn to Swim Sections
 router.post(
   "/sections",
-  upload.fields([
-    { name: "image", maxCount: 5 },
-    { name: "header_image", maxCount: 5 },
-  ]),
+  upload.any(),
   learnToSwimController.addLearnToSwimSection
 ); // Create Learn to Swim Section
 router.put(
   "/sections/:id",
-  upload.fields([
-    { name: "image", maxCount: 5 },
-    { name: "header_image", maxCount: 5 },
-  ]),
+  upload.any(),
   learnToSwimController.updateLearnToSwimSection
 ); // Update Learn to Swim Section by ID
 router.delete("/sections/:id", learnToSwimController.deleteLearnToSwimSection); // Delete Learn to Swim Section by ID
