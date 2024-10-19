@@ -34,6 +34,15 @@ class User {
       console.error(err);
     }
   }
+
+  static async getAllUsers() {
+    try {
+      const [rows] = await db.query("SELECT * FROM users");
+      return rows;
+    } catch (err) {
+      console.error(err);
+    }
+  }
 }
 
 module.exports = User;

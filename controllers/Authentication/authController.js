@@ -225,31 +225,3 @@ exports.verify_otp = async (req, res) => {
     return res.status(500).json({ error: true, message: "Server error." });
   }
 };
-
-/**
- * Get user details function.
- */
-exports.get_user_details = async (req, res) => {
-  try {
-    const { token } = req.body;
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const id = decoded.id;
-
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: {
-        id: user.id,
-        email: user.email,
-        is_verified: user.is_verified,
-        role: user.role,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Invalid token." });
-  }
-};
