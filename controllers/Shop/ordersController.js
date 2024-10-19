@@ -16,8 +16,8 @@ exports.createOrder = async (req, res) => {
       })),
     };
 
-    const oderId = await Order.createOrder(orderData);
-    const order = await Order.getOrder(oderId);
+    const orderId = await Order.createOrder(orderData);
+    const order = await Order.getOrder(orderId);
 
     res.status(201).json({
       success: true,
@@ -64,6 +64,24 @@ exports.deleteOrder = async (req, res) => {
     res.status(400).json({
       error: true,
       message: "Error deleting Order.",
+    });
+  }
+};
+
+exports.getOrdersByUser = async (req, res) => {
+  try {
+    const userId = req.user_id;
+    const orders = await Order.getOrdersByUser(userId);
+    res.status(200).json({
+      success: true,
+      message: "Orders retrieved successfully.",
+      data: orders,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      error: true,
+      message: "Error retrieving Orders.",
     });
   }
 };

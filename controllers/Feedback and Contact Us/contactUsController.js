@@ -26,7 +26,19 @@ exports.submitContactUsForm = async (req, res) => {
 
 exports.getContactUsFormSubmissions = async (req, res) => {
   try {
-    const submissions = await ContactUs.getAllFormSubmissions();
+    const { user_id, id } = req.body;
+    let submissions = await ContactUs.getAllFormSubmissions();
+
+    if (user_id) {
+      submissions = submissions.filter(
+        (submission) => submission.user_id == user_id
+      );
+    }
+
+    if (id) {
+      submissions = submissions.filter((submission) => submission.id == id);
+    }
+
     res.status(200).json({
       success: true,
       message: "Contact Us form submissions retrieved successfully.",

@@ -55,6 +55,7 @@ router.delete("/payment/:id", verifyToken, paymentsController.deletePayment);
 
 // Order routes
 router.post("/orders", verifyToken, ordersController.createOrder);
+router.get("/orders", ordersController.getOrdersByUser);
 router.get("/orders/:id", verifyToken, ordersController.getOrder);
 router.delete("/orders/:id", verifyToken, ordersController.deleteOrder);
 
