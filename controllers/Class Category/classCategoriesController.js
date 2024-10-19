@@ -71,40 +71,42 @@ exports.addClassCategory = async (req, res) => {
 
 exports.updateClassCategory = async (req, res) => {
   try {
-    const { id, title, description, is_active } = req.body;
+    const { title, description, is_active } = req.body;
+    const { id } = req.params;
     const header_image = req.file ? req.file.filename : null;
 
-    const classCategoryData = { title, description, header_image, is_active };
-
-    const classCategory = await ClassCategories.updateCategory(
+    const updatedCategory = await ClassCategories.updateCategory(
       id,
-      classCategoryData
+      title,
+      description,
+      header_image,
+      is_active
     );
-    if (classCategory) {
+
+    if (updatedCategory) {
       const formattedClassCategory = {
-        id: classCategory.id,
-        title: classCategory.title,
-        description: classCategory.description,
-        header_image: classCategory.header_image,
-        is_active: classCategory.is_active,
+        id: updatedCategory.id,
+        title: updatedCategory.title,
+        description: updatedCategory.description,
+        header_image: updatedCategory.header_image,
+        is_active: updatedCategory.is_active,
       };
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: "Class category updated successfully.",
         data: formattedClassCategory,
       });
     } else {
-      res.status(404).json({
+      return res.status(404).json({
         error: true,
-        message: "Error updating class category.",
+        message: "Class category not found.",
       });
     }
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
+    return res.status(500).json({
       error: true,
-      message: "Error updating class category.",
+      message: "An error occurred while updating the class category.",
     });
   }
 };
