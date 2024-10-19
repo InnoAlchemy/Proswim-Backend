@@ -37,7 +37,8 @@ exports.addCategory = async (req, res) => {
 
 exports.updateCategory = async (req, res) => {
   try {
-    const { id, title, is_active } = req.body;
+    const { title, is_active } = req.body;
+    const { id } = req.params;
     const category = await Category.updateCategory(id, title, is_active);
     res.status(200).json({
       success: true,
