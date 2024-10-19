@@ -1,15 +1,20 @@
 const Cart = require("../../models/Shop/Cart");
+const Products = require("./productsController");
 
 exports.getCartItems = async (req, res) => {
   try {
     const user_id = req.userId;
     const cartItems = await Cart.getCartItemsByUserId(user_id);
-
+    const products = await Products.getFormattedProducts();
     const modifiedCartItems = cartItems.map((item) => {
-      const { gender, gender_title, ...rest } = item;
+      const product = products.formattedProducts.find(
+        (p) => p.id === item.product_id
+      );
+      const { product_id, gender, gender_title, ...rest } = item;
       return {
         ...rest,
         gender: gender_title,
+        product: product ? product : null,
       };
     });
 

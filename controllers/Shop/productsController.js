@@ -17,6 +17,8 @@ exports.getProducts = async (req, res) => {
         stock: product.stock, // Include stock quantity
         categories: [product.categories], // Include categories
         genders: [product.genders], // Include genders
+        sizes: JSON.parse(`[${product.sizes}]`),
+
         images: JSON.parse(product.images), // Parse images array
         price: [
           {
@@ -46,6 +48,48 @@ exports.getProducts = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Server error." });
+  }
+};
+exports.getFormattedProducts = async () => {
+  try {
+    const products = await Product.getAllProducts();
+    if (products.length > 0) {
+      const formattedProducts = products.map((product) => ({
+        id: product.id,
+        title: product.title,
+        description: product.description,
+        ...product,
+        product_info: JSON.parse(`[${product.product_info}]`),
+        brand: product.brand,
+        sport: product.sport,
+        stock: product.stock,
+        categories: [product.categories],
+        genders: [product.genders],
+        sizes: JSON.parse(`[${product.sizes}]`),
+        images: JSON.parse(product.images),
+        price: [
+          {
+            currency: "lbp",
+            value: product.price_lbp,
+          },
+          {
+            currency: "usd",
+            value: product.price_usd,
+          },
+        ],
+        created_at: product.created_at,
+        updated_at: product.updated_at,
+      }));
+      return {
+        formattedProducts,
+      };
+    } else {
+      return {
+        data: [],
+      };
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
 

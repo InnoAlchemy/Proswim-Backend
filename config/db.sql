@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 18, 2024 at 04:44 PM
+-- Generation Time: Oct 19, 2024 at 02:28 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -111,7 +111,10 @@ CREATE TABLE `cart_items` (
   `id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `quantity` int(11) NOT NULL CHECK (`quantity` > 0)
+  `gender` int(11) DEFAULT NULL,
+  `color` varchar(50) DEFAULT NULL,
+  `size` enum('XS','S','M','L','XL','XXL') DEFAULT NULL,
+  `quantity` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -271,9 +274,9 @@ CREATE TABLE `lts_buttons` (
 CREATE TABLE `orders` (
   `order_id` int(11) NOT NULL,
   `user_id` varchar(50) DEFAULT NULL,
+  `status` enum('pending','shipped','in_transit','delivered','completed','canceled') DEFAULT 'pending',
   `total_price` decimal(10,0) DEFAULT NULL,
   `currency` enum('LBP','USD') DEFAULT 'USD',
-  `status` enum('pending','completed','canceled') DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -290,7 +293,8 @@ CREATE TABLE `order_products` (
   `product_price` decimal(10,2) DEFAULT NULL,
   `product_color` varchar(50) DEFAULT NULL,
   `product_gender` varchar(50) DEFAULT NULL,
-  `product_quantity` int(11) DEFAULT NULL
+  `product_quantity` int(11) DEFAULT NULL,
+  `product_size` enum('XS','S','M','L','XL','XXL') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -347,10 +351,10 @@ CREATE TABLE `products` (
   `description` text DEFAULT NULL,
   `price_usd` decimal(10,2) NOT NULL,
   `price_lbp` decimal(10,3) NOT NULL DEFAULT 0.000,
-  `product_info` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`product_info`)),
   `brand` varchar(100) DEFAULT NULL,
   `sport` varchar(50) DEFAULT NULL,
   `images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`images`)),
+  `sizes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `stock` int(11) NOT NULL DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -533,7 +537,8 @@ ALTER TABLE `brands`
 ALTER TABLE `cart_items`
   ADD PRIMARY KEY (`id`),
   ADD KEY `product_id` (`product_id`),
-  ADD KEY `user_id` (`user_id`);
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `fk_gender` (`gender`);
 
 --
 -- Indexes for table `categories`
@@ -907,7 +912,9 @@ ALTER TABLE `users`
 --
 ALTER TABLE `cart_items`
   ADD CONSTRAINT `cart_items_ibfk_1` FOREIGN KEY (`id`) REFERENCES `products` (`id`),
-  ADD CONSTRAINT `cart_items_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+  ADD CONSTRAINT `cart_items_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `fk_gender` FOREIGN KEY (`gender`) REFERENCES `genders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_product_id` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `classes`
