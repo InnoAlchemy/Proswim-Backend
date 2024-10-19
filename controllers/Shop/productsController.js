@@ -62,6 +62,7 @@ exports.addProduct = async (req, res) => {
       sport,
       categories,
       stock,
+      sizes,
       images: bodyImages,
     } = req.body;
 
@@ -70,6 +71,7 @@ exports.addProduct = async (req, res) => {
       typeof genders === "string" ? JSON.parse(genders) : genders;
     const parsedCategories =
       typeof categories === "string" ? JSON.parse(categories) : categories;
+    const parsedSizes = typeof sizes === "string" ? JSON.parse(sizes) : sizes;
 
     const parsedPrice = typeof price === "string" ? JSON.parse(price) : price;
     const priceInLBP = parsedPrice.find((p) => p.currency === "lbp")?.value;
@@ -160,7 +162,8 @@ exports.addProduct = async (req, res) => {
       brand,
       sport,
       parsedCategories,
-      stock
+      stock,
+      parsedSizes
     );
 
     if (product) {
@@ -174,6 +177,8 @@ exports.addProduct = async (req, res) => {
         product_info: JSON.parse(`[${product.product_info}]`),
         categories: [product.categories],
         genders: [product.genders],
+        sizes: JSON.parse(`[${product.sizes}]`),
+
         images: JSON.parse(product.images),
         price: [
           {
@@ -216,6 +221,7 @@ exports.updateProduct = async (req, res) => {
       sport,
       categories,
       stock,
+      sizes,
       images: bodyImages,
     } = req.body;
 
@@ -226,6 +232,8 @@ exports.updateProduct = async (req, res) => {
       typeof genders === "string" ? JSON.parse(genders) : genders;
     const parsedCategories =
       typeof categories === "string" ? JSON.parse(categories) : categories;
+
+    const parsedSizes = typeof sizes === "string" ? JSON.parse(sizes) : sizes;
 
     const parsedPrice = typeof price === "string" ? JSON.parse(price) : price;
     const priceInLBP = parsedPrice.find((p) => p.currency === "lbp")?.value;
@@ -317,7 +325,8 @@ exports.updateProduct = async (req, res) => {
       brand,
       sport,
       parsedCategories,
-      stock
+      stock,
+      sizes
     );
 
     if (product) {
@@ -331,6 +340,8 @@ exports.updateProduct = async (req, res) => {
         product_info: JSON.parse(`[${product.product_info}]`),
         categories: [product.categories],
         genders: [product.genders],
+        sizes: JSON.parse(`[${product.sizes}]`),
+
         images: JSON.parse(product.images),
         price: [
           {

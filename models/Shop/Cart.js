@@ -4,7 +4,10 @@ class Cart {
   static async getCartItemsByUserId(userId) {
     try {
       const [rows] = await db.query(
-        "SELECT * FROM cart_items WHERE user_id = ?",
+        `SELECT ci.*, g.title as gender_title 
+         FROM cart_items ci 
+         JOIN genders g ON ci.gender = g.id 
+         WHERE ci.user_id = ?`,
         [userId]
       );
       return rows;
@@ -13,11 +16,19 @@ class Cart {
     }
   }
 
-  static async addCartItem(product_id, user_id, quantity, price) {
+  static async addCartItem(
+    product_id,
+    user_id,
+    quantity,
+    price,
+    gender,
+    color,
+    size
+  ) {
     try {
       await db.query(
-        "INSERT INTO cart_items (product_id, user_id, quantity) VALUES (?, ?, ?)",
-        [product_id, user_id, quantity]
+        "INSERT INTO cart_items (product_id, user_id, quantity, gender, color, size) VALUES (?, ?, ?, ?, ?, ?)",
+        [product_id, user_id, quantity, gender, color, size]
       );
       const [newItem] = await db.query(
         "SELECT * FROM cart_items WHERE id = LAST_INSERT_ID()"
@@ -42,11 +53,19 @@ class Cart {
     }
   }
 
-  static async updateCartItem(id, product_id, user_id, quantity) {
+  static async updateCartItem(
+    id,
+    product_id,
+    user_id,
+    quantity,
+    gender,
+    color,
+    size
+  ) {
     try {
       await db.query(
-        "UPDATE cart_items SET product_id = ?, user_id = ?, quantity = ? WHERE id = ?",
-        [product_id, user_id, quantity, id]
+        "UPDATE cart_items SET product_id = ?, user_id = ?, quantity = ?, gender = ?, color = ?, size = ? WHERE id = ?",
+        [product_id, user_id, quantity, gender, color, size, id]
       );
       const [updatedCartItem] = await db.query(
         "SELECT * FROM cart_items WHERE id = ?",

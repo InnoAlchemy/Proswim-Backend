@@ -4,10 +4,19 @@ exports.getCartItems = async (req, res) => {
   try {
     const user_id = req.userId;
     const cartItems = await Cart.getCartItemsByUserId(user_id);
+
+    const modifiedCartItems = cartItems.map((item) => {
+      const { gender, gender_title, ...rest } = item;
+      return {
+        ...rest,
+        gender: gender_title,
+      };
+    });
+
     res.status(200).json({
       success: true,
       message: "Cart items retrieved successfully.",
-      data: cartItems,
+      data: modifiedCartItems,
     });
   } catch (error) {
     console.log(error);
@@ -20,9 +29,17 @@ exports.getCartItems = async (req, res) => {
 
 exports.addCartItem = async (req, res) => {
   try {
-    const { product_id, quantity } = req.body;
+    const { product_id, quantity, price, gender, color, size } = req.body;
     const user_id = req.userId;
-    const data = await Cart.addCartItem(product_id, user_id, quantity);
+    const data = await Cart.addCartItem(
+      product_id,
+      user_id,
+      quantity,
+      price,
+      gender,
+      color,
+      size
+    );
     res.status(201).json({
       success: true,
       message: "Product added to cart successfully.",
@@ -39,12 +56,15 @@ exports.addCartItem = async (req, res) => {
 
 exports.updateCartItem = async (req, res) => {
   try {
-    const { id, product_id, user_id, quantity } = req.body;
+    const { id, product_id, user_id, quantity, gender, color, size } = req.body;
     const cartItem = await Cart.updateCartItem(
       id,
       product_id,
       user_id,
-      quantity
+      quantity,
+      gender,
+      color,
+      size
     );
     res.status(200).json({
       success: true,

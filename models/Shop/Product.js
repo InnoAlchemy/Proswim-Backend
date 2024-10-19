@@ -62,11 +62,12 @@ class Product {
     brand,
     sport,
     categories,
-    stock
+    stock,
+    sizes
   ) {
     try {
       const [result] = await db.query(
-        "INSERT INTO products (title, description, price_usd, price_lbp, brand, sport, images, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO products (title, description, price_usd, price_lbp, brand, sport, images, sizes, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           title,
           description,
@@ -75,6 +76,7 @@ class Product {
           brand,
           sport,
           JSON.stringify(combinedImages), // Store only the array of images
+          JSON.stringify(sizes),
           stock,
         ]
       );
@@ -147,12 +149,13 @@ class Product {
     brand,
     sport,
     categories,
-    stock
+    stock,
+    sizes
   ) {
     try {
       // Update product details
       let query =
-        "UPDATE products SET title = ?, description = ?, price_usd = ?, price_lbp = ?, brand = ?, sport = ?, images = ?, stock = ? WHERE id = ?";
+        "UPDATE products SET title = ?, description = ?, price_usd = ?, price_lbp = ?, brand = ?, sport = ?, images = ?, stock = ?, sizes = ? WHERE id = ?";
       const queryParams = [
         title,
         description,
@@ -162,6 +165,7 @@ class Product {
         sport,
         JSON.stringify(combinedImages),
         stock,
+        JSON.stringify(sizes),
         id,
       ];
 

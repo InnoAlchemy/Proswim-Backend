@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 
 const sendEmail = (to, subject, text) => {
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: "user-email@gmail.com",
     to,
     subject,
     text,
