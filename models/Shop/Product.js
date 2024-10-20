@@ -28,6 +28,37 @@ class Product {
     }
   }
 
+  static async getProductById(id) {
+    try {
+      const [rows] = await db.query(
+        `
+        SELECT 
+          p.*, 
+          GROUP_CONCAT(DISTINCT cat.title) AS categories, 
+          GROUP_CONCAT(DISTINCT g.title) AS genders,
+          b.title AS brand,
+          s.title AS sport,
+          GROUP_CONCAT(DISTINCT JSON_OBJECT('title', pi.title, 'description', pi.description)) AS product_info
+        FROM products p
+        LEFT JOIN product_categories pc2 ON p.id = pc2.product_id
+        LEFT JOIN categories cat ON pc2.category_id = cat.id
+        LEFT JOIN product_genders pg ON p.id = pg.product_id
+        LEFT JOIN genders g ON pg.gender_id = g.id
+        LEFT JOIN product_colors pc ON p.id = pc.product_id
+        LEFT JOIN brands b ON p.brand = b.id
+        LEFT JOIN sports s ON p.sport = s.id
+        LEFT JOIN product_info pi ON p.id = pi.product_id
+        WHERE p.id = ?
+        GROUP BY p.id
+      `,
+        [id]
+      );
+      return rows[0];
+    } catch (err) {
+      throw err;
+    }
+  }
+
   static async getProduct(id) {
     try {
       const [rows] = await db.query(

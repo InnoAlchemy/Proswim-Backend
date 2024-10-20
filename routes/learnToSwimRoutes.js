@@ -29,7 +29,7 @@ router.put(
   "/sections/:id",
   upload.any(),
   learnToSwimController.updateLearnToSwimSection
-); // Update Learn to Swim Section by ID
+);
 router.delete("/sections/:id", learnToSwimController.deleteLearnToSwimSection); // Delete Learn to Swim Section by ID
 
 module.exports = router;

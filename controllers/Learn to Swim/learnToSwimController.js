@@ -108,6 +108,7 @@ exports.getLearnToSwimSections = async (req, res) => {
 
 exports.addLearnToSwimSection = async (req, res) => {
   try {
+    console.log(req.files);
     const { level_id, title, markdown_text, list_of_content, is_active } =
       req.body;
 
@@ -130,7 +131,6 @@ exports.addLearnToSwimSection = async (req, res) => {
       });
     }
 
-    // Create the new section
     const newSection = await LearnToSwim.createSection(
       level_id,
       title,

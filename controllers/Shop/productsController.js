@@ -4,7 +4,16 @@ const router = express.Router();
 
 exports.getProducts = async (req, res) => {
   try {
-    const products = await Product.getAllProducts();
+    const { product_id } = req.body;
+    let products;
+
+    if (product_id) {
+      const product = await Product.getProductById(product_id);
+      products = product ? [product] : [];
+    } else {
+      products = await Product.getAllProducts();
+    }
+
     if (products.length > 0) {
       const formattedProducts = products.map((product) => ({
         id: product.id, // Include the product ID
