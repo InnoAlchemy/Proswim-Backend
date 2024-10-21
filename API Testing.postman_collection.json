@@ -11625,6 +11625,28 @@
 			]
 		},
 		{
+			"name": "Feedback and Contact Us Combined",
+			"item": [
+				{
+					"name": "/feedback-and-contactus",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/feedback-and-contactus",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"feedback-and-contactus"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "footer",
 			"item": [
 				{

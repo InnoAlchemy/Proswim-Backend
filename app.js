@@ -15,6 +15,8 @@ const feebackRoutes = require("./routes/feedbackRoutes");
 const contactUsRoutes = require("./routes/contactUsRoutes");
 const categoriesWithClassesRoutes = require("./routes/categoriesWithClassesRoutes");
 const LearnToSwimLevelsWithSections = require("./routes/LearnToSwimLevelsWithSectionsRoutes");
+const feedbackAndContactUsRoutes = require("./routes/feedbackAndContactUsRoutes");
+
 const usersRoutes = require("./routes/usersRoutes");
 
 const path = require("path");
@@ -61,6 +63,8 @@ app.use("/footer", footerRoutes);
 app.use("/feedback", feebackRoutes);
 
 app.use("/contact-us", contactUsRoutes);
+
+app.use("/feedback-and-contactus", feedbackAndContactUsRoutes);
 
 app.use("/users", usersRoutes);
 

@@ -89,7 +89,6 @@ exports.updateCartItem = async (req, res) => {
 
 exports.deleteCartItem = async (req, res) => {
   try {
-    const user_id = req.userId;
     const id = req.params.id;
     await Cart.deleteCartItem(id);
     res.status(200).json({
