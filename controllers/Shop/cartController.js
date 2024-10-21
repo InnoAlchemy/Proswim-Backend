@@ -61,7 +61,9 @@ exports.addCartItem = async (req, res) => {
 
 exports.updateCartItem = async (req, res) => {
   try {
-    const { id, product_id, user_id, quantity, gender, color, size } = req.body;
+    const { id, product_id, quantity, gender, color, size } = req.body;
+    const user_id = req.userId;
+
     const cartItem = await Cart.updateCartItem(
       id,
       product_id,
@@ -87,6 +89,7 @@ exports.updateCartItem = async (req, res) => {
 
 exports.deleteCartItem = async (req, res) => {
   try {
+    const user_id = req.userId;
     const id = req.params.id;
     await Cart.deleteCartItem(id);
     res.status(200).json({

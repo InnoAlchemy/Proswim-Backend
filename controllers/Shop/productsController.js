@@ -4,7 +4,8 @@ const router = express.Router();
 
 exports.getProducts = async (req, res) => {
   try {
-    const { product_id } = req.body;
+    const { product_id } = req.query;
+    console.log(req);
     let products;
 
     if (product_id) {

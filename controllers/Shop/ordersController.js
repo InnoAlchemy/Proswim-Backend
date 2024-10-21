@@ -4,15 +4,19 @@ exports.createOrder = async (req, res) => {
   try {
     const { products, status, currency } = req.body;
     const user_id = req.userId;
+    const parsedProducts =
+      typeof products === "string" ? JSON.parse(products) : products;
+
     const orderData = {
       user_id,
       status,
       currency,
-      products: products.map((product) => ({
+      products: parsedProducts.map((product) => ({
         id: product.id, // Ensure product_id is correctly mapped
         color: product.color,
         gender: product.gender,
         quantity: product.quantity,
+        size: product.size,
       })),
     };
 
@@ -35,7 +39,7 @@ exports.createOrder = async (req, res) => {
 
 exports.getOrder = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.params;
     const order = await Order.getOrder(id);
     res.status(200).json({
       success: true,
@@ -70,7 +74,7 @@ exports.deleteOrder = async (req, res) => {
 
 exports.getOrdersByUser = async (req, res) => {
   try {
-    const userId = req.user_id;
+    const userId = req.query.userId;
     const orders = await Order.getOrdersByUser(userId);
     res.status(200).json({
       success: true,

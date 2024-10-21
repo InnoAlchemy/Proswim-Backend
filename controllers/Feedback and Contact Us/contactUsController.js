@@ -26,7 +26,7 @@ exports.submitContactUsForm = async (req, res) => {
 
 exports.getContactUsFormSubmissions = async (req, res) => {
   try {
-    const { user_id, id } = req.body;
+    const { user_id, id } = req.query;
     let submissions = await ContactUs.getAllFormSubmissions();
 
     if (user_id) {

@@ -29,10 +29,19 @@ exports.submitFeedback = async (req, res) => {
     });
   }
 };
-
 exports.getFeedback = async (req, res) => {
   try {
-    const feedbacks = await Feedback.getFeedbacks();
+    const { user_id, id } = req.query;
+    let feedbacks = await Feedback.getFeedbacks();
+
+    if (user_id) {
+      feedbacks = feedbacks.filter((feedback) => feedback.user_id == user_id);
+    }
+
+    if (id) {
+      feedbacks = feedbacks.filter((feedback) => feedback.id == id);
+    }
+
     res.status(200).json({
       success: true,
       message: "Feedback submissions retrieved successfully.",

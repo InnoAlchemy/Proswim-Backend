@@ -41,7 +41,7 @@ class Order {
         totalPrice += price * product.quantity;
 
         await connection.query(
-          "INSERT INTO order_products (order_id, product_id, product_price, product_color, product_gender, product_quantity) VALUES (?, ?, ?, ?, ?, ?)",
+          "INSERT INTO order_products (order_id, product_id, product_price, product_color, product_gender, product_quantity, product_size) VALUES (?, ?, ?, ?, ?, ?, ?)",
           [
             id,
             product.id,
@@ -49,6 +49,7 @@ class Order {
             product.color,
             product.gender,
             product.quantity,
+            product.size,
           ]
         );
 
