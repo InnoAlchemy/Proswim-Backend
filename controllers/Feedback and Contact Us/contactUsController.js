@@ -3,17 +3,17 @@ const { sendEmail } = require("../../helper/emailService");
 
 exports.submitContactUsForm = async (req, res) => {
   try {
-    const { user_id, subject, body, email } = req.body;
-    await ContactUs.createFormSubmission(user_id, subject, body, email);
+    const { name, subject, body, email } = req.body;
+    await ContactUs.createFormSubmission(name, subject, body, email);
 
-    const text = `User ID: ${user_id}\nSubject: ${subject}\nBody: ${body}\nEmail: ${email}`;
+    const text = `User ID: ${name}\nSubject: ${subject}\nBody: ${body}\nEmail: ${email}`;
 
     await sendEmail(process.env.EMAIL_USER, subject, text);
 
     res.status(201).json({
       success: true,
       message: "Contact Us form submitted successfully.",
-      data: { user_id, subject, body, email },
+      data: { name, subject, body, email },
     });
   } catch (error) {
     console.log(error);
@@ -26,14 +26,8 @@ exports.submitContactUsForm = async (req, res) => {
 
 exports.getContactUsFormSubmissions = async (req, res) => {
   try {
-    const { user_id, id } = req.query;
+    const { id } = req.query;
     let submissions = await ContactUs.getAllFormSubmissions();
-
-    if (user_id) {
-      submissions = submissions.filter(
-        (submission) => submission.user_id == user_id
-      );
-    }
 
     if (id) {
       submissions = submissions.filter((submission) => submission.id == id);

@@ -6,11 +6,11 @@ class Product {
       const [rows] = await db.query(`
         SELECT 
           p.*, 
-          GROUP_CONCAT(DISTINCT cat.title) AS categories, 
-          GROUP_CONCAT(DISTINCT g.title) AS genders,
+          b.id AS brand_id,
           b.title AS brand,
+          s.id AS sport_id,
           s.title AS sport,
-          GROUP_CONCAT(DISTINCT JSON_OBJECT('title', pi.title, 'description', pi.description)) AS product_info
+          CONCAT('[', GROUP_CONCAT(DISTINCT JSON_OBJECT('title', pi.title, 'description', pi.description)), ']') AS product_info
         FROM products p
         LEFT JOIN product_categories pc2 ON p.id = pc2.product_id
         LEFT JOIN categories cat ON pc2.category_id = cat.id
@@ -22,7 +22,42 @@ class Product {
         LEFT JOIN product_info pi ON p.id = pi.product_id
         GROUP BY p.id
       `);
-      return rows;
+
+      const productIds = rows.map((row) => row.id);
+
+      const [categories] = await db.query(
+        `
+        SELECT pc2.product_id, cat.id AS category_id, cat.title AS category_title
+        FROM product_categories pc2
+        JOIN categories cat ON pc2.category_id = cat.id
+        WHERE pc2.product_id IN (?)
+      `,
+        [productIds]
+      );
+
+      const [genders] = await db.query(
+        `
+        SELECT pg.product_id, g.id AS gender_id, g.title AS gender_title
+        FROM product_genders pg
+        JOIN genders g ON pg.gender_id = g.id
+        WHERE pg.product_id IN (?)
+      `,
+        [productIds]
+      );
+
+      const products = rows.map((product) => {
+        return {
+          ...product,
+          categories: categories
+            .filter((cat) => cat.product_id === product.id)
+            .map((cat) => ({ id: cat.category_id, title: cat.category_title })),
+          genders: genders
+            .filter((gen) => gen.product_id === product.id)
+            .map((gen) => ({ id: gen.gender_id, title: gen.gender_title })),
+        };
+      });
+
+      return products;
     } catch (err) {
       throw err;
     }
@@ -34,11 +69,11 @@ class Product {
         `
         SELECT 
           p.*, 
-          GROUP_CONCAT(DISTINCT cat.title) AS categories, 
-          GROUP_CONCAT(DISTINCT g.title) AS genders,
+          b.id AS brand_id,
           b.title AS brand,
+          s.id AS sport_id,
           s.title AS sport,
-          GROUP_CONCAT(DISTINCT JSON_OBJECT('title', pi.title, 'description', pi.description)) AS product_info
+          CONCAT('[', GROUP_CONCAT(DISTINCT JSON_OBJECT('title', pi.title, 'description', pi.description)), ']') AS product_info
         FROM products p
         LEFT JOIN product_categories pc2 ON p.id = pc2.product_id
         LEFT JOIN categories cat ON pc2.category_id = cat.id
@@ -50,10 +85,45 @@ class Product {
         LEFT JOIN product_info pi ON p.id = pi.product_id
         WHERE p.id = ?
         GROUP BY p.id
-      `,
+        `,
         [id]
       );
-      return rows[0];
+
+      const productId = rows[0].id;
+
+      const [categories] = await db.query(
+        `
+        SELECT pc2.product_id, cat.id AS category_id, cat.title AS category_title
+        FROM product_categories pc2
+        JOIN categories cat ON pc2.category_id = cat.id
+        WHERE pc2.product_id = ?
+        `,
+        [productId]
+      );
+
+      const [genders] = await db.query(
+        `
+        SELECT pg.product_id, g.id AS gender_id, g.title AS gender_title
+        FROM product_genders pg
+        JOIN genders g ON pg.gender_id = g.id
+        WHERE pg.product_id = ?
+        `,
+        [productId]
+      );
+
+      const product = {
+        ...rows[0],
+        categories: categories.map((cat) => ({
+          id: cat.category_id,
+          title: cat.category_title,
+        })),
+        genders: genders.map((gen) => ({
+          id: gen.gender_id,
+          title: gen.gender_title,
+        })),
+      };
+
+      return product;
     } catch (err) {
       throw err;
     }
@@ -63,20 +133,63 @@ class Product {
     try {
       const [rows] = await db.query(
         `
-        SELECT p.*, c.category_id, col.color_id, g.gender_id 
+        SELECT 
+          p.*, 
+          b.id AS brand_id,
+          b.title AS brand,
+          s.id AS sport_id,
+          s.title AS sport,
+          CONCAT('[', GROUP_CONCAT(DISTINCT JSON_OBJECT('title', pi.title, 'description', pi.description)), ']') AS product_info
         FROM products p
-        LEFT JOIN product_categories c ON p.id = c.product_id
-        LEFT JOIN product_colors col ON p.id = col.product_id
-        LEFT JOIN product_genders g ON p.id = g.product_id
+        LEFT JOIN product_categories pc2 ON p.id = pc2.product_id
+        LEFT JOIN categories cat ON pc2.category_id = cat.id
+        LEFT JOIN product_genders pg ON p.id = pg.product_id
+        LEFT JOIN genders g ON pg.gender_id = g.id
+        LEFT JOIN product_colors pc ON p.id = pc.product_id
+        LEFT JOIN brands b ON p.brand = b.id
+        LEFT JOIN sports s ON p.sport = s.id
+        LEFT JOIN product_info pi ON p.id = pi.product_id
         WHERE p.id = ?
-      `,
+        GROUP BY p.id
+        `,
         [id]
       );
 
-      if (rows.length === 0) {
-        throw new Error("Product not found");
-      }
-      return rows[0];
+      const productId = rows[0].id;
+
+      const [categories] = await db.query(
+        `
+        SELECT pc2.product_id, cat.id AS category_id, cat.title AS category_title
+        FROM product_categories pc2
+        JOIN categories cat ON pc2.category_id = cat.id
+        WHERE pc2.product_id = ?
+        `,
+        [productId]
+      );
+
+      const [genders] = await db.query(
+        `
+        SELECT pg.product_id, g.id AS gender_id, g.title AS gender_title
+        FROM product_genders pg
+        JOIN genders g ON pg.gender_id = g.id
+        WHERE pg.product_id = ?
+        `,
+        [productId]
+      );
+
+      const product = {
+        ...rows[0],
+        categories: categories.map((cat) => ({
+          id: cat.category_id,
+          title: cat.category_title,
+        })),
+        genders: genders.map((gen) => ({
+          id: gen.gender_id,
+          title: gen.gender_title,
+        })),
+      };
+
+      return product;
     } catch (err) {
       throw err;
     }
@@ -96,8 +209,11 @@ class Product {
     stock,
     sizes
   ) {
+    const connection = await db.getConnection();
     try {
-      const [result] = await db.query(
+      await connection.beginTransaction();
+
+      const [result] = await connection.query(
         "INSERT INTO products (title, description, price_usd, price_lbp, brand, sport, images, sizes, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           title,
@@ -116,7 +232,7 @@ class Product {
       // Insert into related tables
       if (categories) {
         for (const category of categories) {
-          await db.query(
+          await connection.query(
             "INSERT INTO product_categories (product_id, category_id) VALUES (?, ?)",
             [newProductId, category]
           );
@@ -124,7 +240,7 @@ class Product {
       }
       if (genders) {
         for (const gender of genders) {
-          await db.query(
+          await connection.query(
             "INSERT INTO product_genders (product_id, gender_id) VALUES (?, ?)",
             [newProductId, gender]
           );
@@ -134,14 +250,14 @@ class Product {
       if (product_info && Array.isArray(product_info)) {
         for (const info of product_info) {
           const parsedInfo = JSON.parse(info);
-          await db.query(
+          await connection.query(
             "INSERT INTO product_info (product_id, title, description) VALUES (?, ?, ?)",
             [newProductId, parsedInfo.title, parsedInfo.description]
           );
         }
       }
 
-      const [newProduct] = await db.query(
+      const [newProduct] = await connection.query(
         `
         SELECT 
           p.*, 
@@ -162,9 +278,13 @@ class Product {
         [newProductId] // Use the product ID as the parameter
       );
 
+      await connection.commit();
       return newProduct[0];
     } catch (err) {
+      await connection.rollback();
       throw err;
+    } finally {
+      connection.release();
     }
   }
 

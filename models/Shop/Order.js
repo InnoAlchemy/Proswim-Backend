@@ -145,6 +145,24 @@ class Order {
       throw err;
     }
   }
+
+  static async getAllOrders() {
+    try {
+      const [orders] = await db.query("SELECT * FROM orders");
+      for (const order of orders) {
+        // Get the associated products for each order
+        const [products] = await db.query(
+          "SELECT * FROM order_products WHERE order_id = ?",
+          [order.order_id]
+        );
+        order.products = products;
+      }
+
+      return orders;
+    } catch (err) {
+      throw err;
+    }
+  }
 }
 
 module.exports = Order;

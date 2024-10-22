@@ -4,16 +4,33 @@ const router = express.Router();
 
 exports.getLearnToSwimLevels = async (req, res) => {
   try {
-    const levels = await LearnToSwim.getAllLevels();
+    const { id } = req.query;
+    let levels;
+
+    if (id) {
+      levels = await LearnToSwim.getAllLevels();
+      levels = levels.filter((level) => level.id == id);
+    } else {
+      levels = await LearnToSwim.getAllLevels();
+    }
+
+    const sections = await LearnToSwim.getLearnToSwimSections();
+    const levelsWithSections = levels.map((level) => {
+      return {
+        ...level,
+        sections: sections.filter((section) => section.level_id == level.id),
+      };
+    });
+
     res.status(200).json({
       success: true,
       message: "Learn to Swim levels retrieved successfully.",
-      data: levels,
+      data: levelsWithSections,
     });
   } catch (error) {
     console.error(error);
-    res.status(400).json({
-      error: true,
+    res.status(500).json({
+      success: false,
       message: "Error retrieving Learn to Swim levels.",
     });
   }
@@ -216,32 +233,6 @@ exports.deleteLearnToSwimSection = async (req, res) => {
     res.status(400).json({
       error: true,
       message: "Error deleting Learn to Swim section.",
-    });
-  }
-};
-
-exports.getLearnToSwimLevelsWithSections = async (req, res) => {
-  try {
-    const levels = await LearnToSwim.getAllLevels();
-
-    const sections = await LearnToSwim.getLearnToSwimSections();
-    const levelsWithSections = levels.map((level) => {
-      return {
-        ...level,
-        sections: sections.filter((section) => section.level_id == level.id),
-      };
-    });
-
-    res.status(200).json({
-      success: true,
-      message: "Learn to Swim levels with sections retrieved successfully.",
-      data: levelsWithSections,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: "Error retrieving Learn to Swim levels and sections.",
     });
   }
 };

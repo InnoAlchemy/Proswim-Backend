@@ -6,11 +6,15 @@ exports.get_user_details = async (req, res) => {
     const id = req.userId;
     const user = await User.findById(id);
     if (!user) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(404).json({
+        error: true,
+        message: "User not found.",
+      });
     }
 
     res.status(200).json({
       success: true,
+      message: "User details retrieved successfully.",
       data: {
         id: user.id,
         email: user.email,
@@ -19,7 +23,11 @@ exports.get_user_details = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Server Error token." });
+    console.log(error);
+    res.status(400).json({
+      error: true,
+      message: "Error retrieving user details.",
+    });
   }
 };
 
@@ -28,9 +36,37 @@ exports.getAllUsers = async (req, res) => {
     const users = await User.getAllUsers();
     res.status(200).json({
       success: true,
+      message: "Users retrieved successfully.",
       data: users,
     });
   } catch (error) {
-    res.status(500).json({ message: "Error retrieving users." });
+    console.log(error);
+    res.status(400).json({
+      error: true,
+      message: "Error retrieving users.",
+    });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const affectedRows = await User.deleteUser(id);
+    if (affectedRows === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "User not found.",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully.",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      error: true,
+      message: "Error deleting user.",
+    });
   }
 };

@@ -37,14 +37,42 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-exports.getOrder = async (req, res) => {
+exports.getAllOrders = async (req, res) => {
   try {
-    const id = req.params;
-    const order = await Order.getOrder(id);
+    const { user_id } = req.query;
+    let orders = await Order.getAllOrders();
+
+    if (user_id) {
+      orders = orders.filter((order) => order.user_id === user_id);
+    }
+
     res.status(200).json({
       success: true,
-      message: "Order details retrieved successfully.",
-      data: order,
+      message: "All orders retrieved successfully.",
+      data: orders,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      error: true,
+      message: "Error retrieving all orders.",
+    });
+  }
+};
+
+exports.getOrder = async (req, res) => {
+  try {
+    const { id } = req.query;
+    let orders = await Order.getAllOrders();
+
+    if (id) {
+      orders = orders.filter((order) => order.order_id == id);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "orders retrieved successfully.",
+      data: orders,
     });
   } catch (error) {
     console.log(error);
@@ -68,24 +96,6 @@ exports.deleteOrder = async (req, res) => {
     res.status(400).json({
       error: true,
       message: "Error deleting Order.",
-    });
-  }
-};
-
-exports.getOrdersByUser = async (req, res) => {
-  try {
-    const userId = req.query.userId;
-    const orders = await Order.getOrdersByUser(userId);
-    res.status(200).json({
-      success: true,
-      message: "Orders retrieved successfully.",
-      data: orders,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({
-      error: true,
-      message: "Error retrieving Orders.",
     });
   }
 };

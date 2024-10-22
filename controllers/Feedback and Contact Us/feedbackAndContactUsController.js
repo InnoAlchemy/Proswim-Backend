@@ -3,33 +3,31 @@ const Feedback = require("../../models/Feedback");
 
 exports.getFeedbackAndContactUs = async (req, res) => {
   try {
-    const { user_id, id } = req.query;
+    const { id } = req.query;
 
     let feedbacks = await Feedback.getFeedbacks();
     let contactUs = await ContactUs.getAllFormSubmissions();
-
-    if (user_id) {
-      feedbacks = feedbacks.filter((feedback) => feedback.user_id == user_id);
-      contactUs = contactUs.filter(
-        (submission) => submission.user_id == user_id
-      );
-    }
 
     if (id) {
       feedbacks = feedbacks.filter((feedback) => feedback.id == id);
       contactUs = contactUs.filter((submission) => submission.id == id);
     }
-
     let combined = [
       ...feedbacks.map((feedback) => ({
         id: feedback.id,
+        name: feedback.name,
         subject: feedback.subject,
+        body: feedback.body,
+        email: feedback.email,
         category: "Feedback",
         created_at: feedback.created_at,
       })),
       ...contactUs.map((submission) => ({
         id: submission.id,
+        name: submission.name,
         subject: submission.subject,
+        body: submission.body,
+        email: submission.email,
         category: "Contact Us",
         created_at: submission.created_at,
       })),

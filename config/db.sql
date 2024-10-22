@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 21, 2024 at 05:15 PM
+-- Generation Time: Oct 22, 2024 at 02:08 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -179,7 +179,7 @@ CREATE TABLE `class_contents` (
 
 CREATE TABLE `contact_us` (
   `id` int(11) NOT NULL,
-  `user_id` varchar(50) NOT NULL,
+  `name` varchar(50) NOT NULL,
   `subject` varchar(255) NOT NULL,
   `body` text NOT NULL,
   `email` varchar(100) NOT NULL,
@@ -208,7 +208,7 @@ CREATE TABLE `core_values` (
 
 CREATE TABLE `feedback` (
   `id` int(11) NOT NULL,
-  `user_id` varchar(50) NOT NULL,
+  `name` varchar(50) NOT NULL,
   `subject` varchar(255) NOT NULL,
   `body` text NOT NULL,
   `email` varchar(100) NOT NULL,

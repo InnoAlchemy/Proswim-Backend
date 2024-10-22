@@ -4,45 +4,51 @@ const router = express.Router();
 
 exports.getProducts = async (req, res) => {
   try {
-    const { product_id } = req.query;
-    console.log(req);
+    const { id } = req.query;
     let products;
 
-    if (product_id) {
-      const product = await Product.getProductById(product_id);
+    if (id) {
+      const product = await Product.getProductById(id);
       products = product ? [product] : [];
     } else {
       products = await Product.getAllProducts();
     }
 
     if (products.length > 0) {
-      const formattedProducts = products.map((product) => ({
-        id: product.id, // Include the product ID
-        title: product.title,
-        description: product.description,
-        ...product,
-        product_info: JSON.parse(`[${product.product_info}]`), // Convert string to JSON array
-        brand: product.brand, // Include brand ID
-        sport: product.sport, // Include sport ID
-        stock: product.stock, // Include stock quantity
-        categories: [product.categories], // Include categories
-        genders: [product.genders], // Include genders
-        sizes: JSON.parse(`[${product.sizes}]`),
-
-        images: JSON.parse(product.images), // Parse images array
-        price: [
-          {
-            currency: "lbp",
-            value: product.price_lbp, // Keep LBP price
+      const formattedProducts = products.map((product) => {
+        return {
+          id: product.id, // Product ID
+          title: product.title, // Title
+          description: product.description, // Description
+          brand: {
+            id: product.brand_id,
+            title: product.brand,
+          }, // Include brand
+          sport: {
+            id: product.sport_id,
+            title: product.sport,
           },
-          {
-            currency: "usd",
-            value: product.price_usd, // Keep USD price
-          },
-        ],
-        created_at: product.created_at, // Include creation timestamp
-        updated_at: product.updated_at, // Include update timestamp
-      }));
+          stock: product.stock, // Stock quantity
+          categories: product.categories, // Include categories (assuming stored as strings)
+          genders: product.genders, // Include genders (assuming stored as strings)
+          product_info: JSON.parse(product.product_info), // Correctly parse product_info as JSON
+          sizes: JSON.parse(product.sizes), // Parse sizes as an array
+          images: JSON.parse(product.images), // Parse images array
+          price: [
+            {
+              currency: "lbp",
+              value: product.price_lbp, // LBP price
+            },
+            {
+              currency: "usd",
+              value: product.price_usd, // USD price
+            },
+          ],
+          created_at: product.created_at, // Creation timestamp
+          updated_at: product.updated_at, // Update timestamp
+        };
+      });
+      console.log(products);
       res.status(200).json({
         success: true,
         message: "Products retrieved successfully.",
@@ -60,36 +66,40 @@ exports.getProducts = async (req, res) => {
     res.status(500).json({ message: "Server error." });
   }
 };
+
 exports.getFormattedProducts = async () => {
   try {
     const products = await Product.getAllProducts();
     if (products.length > 0) {
-      const formattedProducts = products.map((product) => ({
-        id: product.id,
-        title: product.title,
-        description: product.description,
-        ...product,
-        product_info: JSON.parse(`[${product.product_info}]`),
-        brand: product.brand,
-        sport: product.sport,
-        stock: product.stock,
-        categories: [product.categories],
-        genders: [product.genders],
-        sizes: JSON.parse(`[${product.sizes}]`),
-        images: JSON.parse(product.images),
-        price: [
-          {
-            currency: "lbp",
-            value: product.price_lbp,
-          },
-          {
-            currency: "usd",
-            value: product.price_usd,
-          },
-        ],
-        created_at: product.created_at,
-        updated_at: product.updated_at,
-      }));
+      const formattedProducts = products.map((product) => {
+        const { price_lbp, price_usd, ...rest } = product; // Destructure to remove price_lbp and price_usd
+        return {
+          id: product.id,
+          title: product.title,
+          description: product.description,
+          ...rest,
+          product_info: JSON.parse(`[${product.product_info}]`),
+          brand: product.brand,
+          sport: product.sport,
+          stock: product.stock,
+          categories: [product.categories],
+          genders: [product.genders],
+          sizes: JSON.parse(`[${product.sizes}]`),
+          images: JSON.parse(product.images),
+          price: [
+            {
+              currency: "lbp",
+              value: price_lbp,
+            },
+            {
+              currency: "usd",
+              value: price_usd,
+            },
+          ],
+          created_at: product.created_at,
+          updated_at: product.updated_at,
+        };
+      });
       return {
         formattedProducts,
       };
@@ -105,6 +115,7 @@ exports.getFormattedProducts = async () => {
 
 exports.addProduct = async (req, res) => {
   try {
+    console.log(req.body);
     const images = req.files || [];
     const {
       title,
@@ -119,7 +130,6 @@ exports.addProduct = async (req, res) => {
       sizes,
       images: bodyImages,
     } = req.body;
-
     // Parse fields if necessary
     const parsedGenders =
       typeof genders === "string" ? JSON.parse(genders) : genders;

@@ -3,7 +3,6 @@ const db = require("../config/db");
 class User {
   static async findByEmail(email) {
     try {
-      console.log(email);
       const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [
         email,
       ]);
@@ -37,8 +36,19 @@ class User {
 
   static async getAllUsers() {
     try {
-      const [rows] = await db.query("SELECT * FROM users");
+      const [rows] = await db.query(
+        "SELECT id, email, is_verified, role FROM users"
+      );
       return rows;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  static async deleteUser(id) {
+    try {
+      const [result] = await db.query("DELETE FROM users WHERE id = ?", [id]);
+      return result.affectedRows;
     } catch (err) {
       console.error(err);
     }

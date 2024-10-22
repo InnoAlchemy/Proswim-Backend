@@ -1,11 +1,11 @@
 const db = require("../config/db");
 
 class ContactUs {
-  static async createFormSubmission(user_id, subject, body, email) {
+  static async createFormSubmission(name, subject, body, email) {
     try {
       await db.query(
-        "INSERT INTO contact_us (user_id, subject, body, email) VALUES (?, ?, ?, ?)",
-        [user_id, subject, body, email]
+        "INSERT INTO contact_us (name, subject, body, email) VALUES (?, ?, ?, ?)",
+        [name, subject, body, email]
       );
     } catch (err) {
       throw err;

@@ -6,33 +6,45 @@ const router = express.Router();
 
 exports.getClassCategories = async (req, res) => {
   try {
+    const { id } = req.query;
     const classCategories = await ClassCategories.getAllCategories();
-    if (classCategories.length > 0) {
-      const formattedClassCategories = classCategories.map((classCategory) => ({
-        id: classCategory.id,
-        title: classCategory.title,
-        description: classCategory.description,
-        header_image: classCategory.header_image,
-        is_active: classCategory.is_active,
-      }));
+    const classes = await Classes.getAllClasses();
 
-      res.status(200).json({
-        success: true,
-        message: "Class categories retrieved successfully.",
-        data: formattedClassCategories,
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        message: "No class categories found.",
-        data: [],
-      });
+    let filteredClassCategories = classCategories;
+
+    if (id) {
+      filteredClassCategories = classCategories.filter(
+        (category) => category.id == id
+      );
+
+      if (filteredClassCategories.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Class category not found.",
+        });
+      }
     }
+
+    const formattedClassCategories = filteredClassCategories.map((category) => {
+      return {
+        ...category,
+        classes: classes.filter(
+          (class_object) => class_object.class_category_id == category.id
+        ),
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Class categories  retrieved successfully.",
+      data: formattedClassCategories,
+    });
   } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ error: true, message: "Error retrieving class categories." });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Error while retrieving class categories.",
+    });
   }
 };
 
@@ -135,9 +147,26 @@ exports.deleteClassCategory = async (req, res) => {
 
 exports.getClassCategoriesWithClasses = async (req, res) => {
   try {
+    const { id } = req.query;
     const classCategories = await ClassCategories.getAllCategories();
     const classes = await Classes.getAllClasses();
-    const formattedClassCategories = classCategories.map((category) => {
+
+    let filteredClassCategories = classCategories;
+
+    if (id) {
+      filteredClassCategories = classCategories.filter(
+        (category) => category.id == id
+      );
+
+      if (filteredClassCategories.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Class category not found.",
+        });
+      }
+    }
+
+    const formattedClassCategories = filteredClassCategories.map((category) => {
       return {
         ...category,
         classes: classes.filter(
