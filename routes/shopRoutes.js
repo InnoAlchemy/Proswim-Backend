@@ -45,7 +45,7 @@ router.delete("/genders/:id", gendersController.deleteGender);
 // Cart routes
 router.get("/cart", verifyToken, cartController.getCartItems);
 router.post("/cart", verifyToken, cartController.addCartItem);
-router.put("/cart", verifyToken, cartController.updateCartItem);
+router.put("/cart/:id", verifyToken, cartController.updateCartItem);
 router.delete("/cart/:id", verifyToken, cartController.deleteCartItem);
 
 // Payment routes
@@ -56,7 +56,8 @@ router.delete("/payment/:id", verifyToken, paymentsController.deletePayment);
 // Order routes
 router.post("/orders", verifyToken, ordersController.createOrder);
 router.get("/orders", ordersController.getAllOrders);
-router.get("/orders/order", ordersController.getOrder);
+router.get("/get-order", ordersController.getOrder);
+router.get("/user-order", ordersController.getUserOrders);
 router.delete("/orders/:id", verifyToken, ordersController.deleteOrder);
 
 module.exports = router;

@@ -34,13 +34,12 @@ exports.getCartItems = async (req, res) => {
 
 exports.addCartItem = async (req, res) => {
   try {
-    const { product_id, quantity, price, gender, color, size } = req.body;
+    const { product_id, quantity, gender, color, size } = req.body;
     const user_id = req.userId;
     const data = await Cart.addCartItem(
       product_id,
       user_id,
       quantity,
-      price,
       gender,
       color,
       size
@@ -61,13 +60,12 @@ exports.addCartItem = async (req, res) => {
 
 exports.updateCartItem = async (req, res) => {
   try {
-    const { id, product_id, quantity, gender, color, size } = req.body;
+    const { product_id, quantity, gender, color, size } = req.body;
+    const { id } = req.params;
     const user_id = req.userId;
 
     const cartItem = await Cart.updateCartItem(
       id,
-      product_id,
-      user_id,
       quantity,
       gender,
       color,

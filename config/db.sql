@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 22, 2024 at 02:08 PM
+-- Generation Time: Oct 22, 2024 at 05:36 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -277,8 +277,10 @@ CREATE TABLE `orders` (
   `order_id` int(11) NOT NULL,
   `user_id` varchar(50) DEFAULT NULL,
   `status` enum('pending','shipped','in_transit','delivered','completed','canceled') DEFAULT 'pending',
+  `address` varchar(255) DEFAULT NULL,
   `total_price` decimal(10,0) DEFAULT NULL,
   `currency` enum('LBP','USD') DEFAULT 'USD',
+  `type` enum('COD','Card','','') NOT NULL DEFAULT 'COD',
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -913,7 +915,6 @@ ALTER TABLE `users`
 -- Constraints for table `cart_items`
 --
 ALTER TABLE `cart_items`
-  ADD CONSTRAINT `cart_items_ibfk_1` FOREIGN KEY (`id`) REFERENCES `products` (`id`),
   ADD CONSTRAINT `cart_items_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
   ADD CONSTRAINT `fk_gender` FOREIGN KEY (`gender`) REFERENCES `genders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_product_id` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;

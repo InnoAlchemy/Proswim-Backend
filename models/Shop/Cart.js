@@ -16,15 +16,7 @@ class Cart {
     }
   }
 
-  static async addCartItem(
-    product_id,
-    user_id,
-    quantity,
-    price,
-    gender,
-    color,
-    size
-  ) {
+  static async addCartItem(product_id, user_id, quantity, gender, color, size) {
     try {
       await db.query(
         "INSERT INTO cart_items (product_id, user_id, quantity, gender, color, size) VALUES (?, ?, ?, ?, ?, ?)",
@@ -53,20 +45,38 @@ class Cart {
     }
   }
 
-  static async updateCartItem(
-    id,
-    product_id,
-    user_id,
-    quantity,
-    gender,
-    color,
-    size
-  ) {
+  static async updateCartItem(id, quantity, gender, color, size) {
     try {
-      await db.query(
-        "UPDATE cart_items SET product_id = ?, user_id = ?, quantity = ?, gender = ?, color = ?, size = ? WHERE id = ?",
-        [product_id, user_id, quantity, gender, color, size, id]
-      );
+      const fields = [];
+      const values = [];
+
+      if (quantity !== null) {
+        fields.push("quantity = ?");
+        values.push(quantity);
+      }
+      if (gender !== null) {
+        fields.push("gender = ?");
+        values.push(gender);
+      }
+      if (color !== null) {
+        fields.push("color = ?");
+        values.push(color);
+      }
+      if (size !== null) {
+        fields.push("size = ?");
+        values.push(size);
+      }
+
+      if (fields.length === 0) {
+        throw new Error("No fields to update");
+      }
+
+      values.push(id);
+
+      const query = `UPDATE cart_items SET ${fields.join(", ")} WHERE id = ?`;
+
+      await db.query(query, values);
+
       const [updatedCartItem] = await db.query(
         "SELECT * FROM cart_items WHERE id = ?",
         [id]

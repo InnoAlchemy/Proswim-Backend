@@ -6,12 +6,12 @@ class Order {
     try {
       await connection.beginTransaction();
 
-      const { user_id, status, products, currency } = orderData;
+      const { user_id, status, products, currency, address } = orderData;
 
       // Insert the order first
       const order = await connection.query(
-        "INSERT INTO orders (user_id, total_price, currency, status) VALUES (?, ?, ?, ?)",
-        [user_id, 0, currency, status] // total_price is set to 0 initially
+        "INSERT INTO orders (user_id, total_price, currency, status, address) VALUES (?, ?, ?, ?, ?)",
+        [user_id, 0, currency, status, address] // total_price is set to 0 initially
       );
       const id = order[0].insertId;
 
@@ -90,8 +90,13 @@ class Order {
       const [rows] = await db.query("SELECT * FROM orders WHERE order_id = ?", [
         id,
       ]);
-      if (rows.length === 0) {
-        throw new Error("Order not found");
+
+      // Get the user's email
+      const [user] = await db.query("SELECT email FROM users WHERE id = ?", [
+        rows[0].user_id,
+      ]);
+      if (user.length > 0) {
+        rows[0].user_email = user[0].email; // Add email to the order details
       }
 
       // Get the associated products for the order
@@ -133,6 +138,15 @@ class Order {
         [userId]
       );
       for (const order of orders) {
+        // Get the user's email
+        const [user] = await db.query(
+          "SELECT email FROM users WHERE user_id = ?",
+          [order.user_id]
+        );
+        if (user.length > 0) {
+          order.user_email = user[0].email; // Add email to the order details
+        }
+
         const [products] = await db.query(
           "SELECT * FROM order_products WHERE order_id = ?",
           [order.order_id]
@@ -150,6 +164,14 @@ class Order {
     try {
       const [orders] = await db.query("SELECT * FROM orders");
       for (const order of orders) {
+        // Get the user's email
+        const [user] = await db.query("SELECT email FROM users WHERE id = ?", [
+          order.user_id,
+        ]);
+        if (user.length > 0) {
+          order.user_email = user[0].email; // Add email to the order details
+        }
+
         // Get the associated products for each order
         const [products] = await db.query(
           "SELECT * FROM order_products WHERE order_id = ?",
