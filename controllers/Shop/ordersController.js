@@ -153,6 +153,43 @@ exports.getOrder = async (req, res) => {
   }
 };
 
+exports.updateOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { products, status, currency, address } = req.body;
+    const parsedProducts =
+      typeof products === "string" ? JSON.parse(products) : products;
+
+    const orderData = {
+      status,
+      address,
+      currency,
+      products: parsedProducts.map((product) => ({
+        id: product.id,
+        color: product.color,
+        gender: product.gender,
+        quantity: product.quantity,
+        size: product.size,
+      })),
+    };
+
+    await Order.updateOrder(id, orderData);
+    const updatedOrder = await Order.getOrder(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Order updated successfully.",
+      data: [updatedOrder],
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      error: true,
+      message: "Error updating Order.",
+    });
+  }
+};
+
 exports.deleteOrder = async (req, res) => {
   try {
     const id = req.params.id;

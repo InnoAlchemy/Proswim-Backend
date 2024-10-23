@@ -58,6 +58,7 @@ router.post("/orders", verifyToken, ordersController.createOrder);
 router.get("/orders", ordersController.getAllOrders);
 router.get("/get-order", ordersController.getOrder);
 router.get("/user-order", ordersController.getUserOrders);
+router.put("/orders/:id", ordersController.updateOrder);
 router.delete("/orders/:id", verifyToken, ordersController.deleteOrder);
 
 module.exports = router;
