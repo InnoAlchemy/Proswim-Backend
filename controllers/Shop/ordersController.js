@@ -86,11 +86,12 @@ exports.getUserOrders = async (req, res) => {
     const modifiedOrders = orders.map((order) => {
       const modifiedProducts = order.products.map((item) => {
         const product = products.formattedProducts.find(
-          (p) => p.id === item.id
+          (p) => p.id == item.product_id
         );
+        console.log(products);
         return {
           ...item,
-          product_information: product ? product : null,
+          product_information: product || null, // Return product or null if not found
         };
       });
       return {

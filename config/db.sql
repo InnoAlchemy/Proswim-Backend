@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 22, 2024 at 05:36 PM
+-- Generation Time: Oct 23, 2024 at 12:47 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -474,7 +474,6 @@ CREATE TABLE `swim_sections` (
   `level_id` varchar(255) NOT NULL,
   `title` varchar(255) NOT NULL,
   `markdown_text` text DEFAULT NULL,
-  `header_image` varchar(255) DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

@@ -51,7 +51,11 @@ exports.addClass = async (req, res) => {
 
     if (parsedContentList && Array.isArray(parsedContentList)) {
       parsedContentList.forEach((content, index) => {
-        content.image = images[index] || null;
+        const imageFieldName = `list_of_content[${index}]`;
+        const imageFile = req.files
+          ? req.files.find((image) => image.fieldname === imageFieldName)
+          : null;
+        content.image = imageFile ? imageFile.filename : null;
       });
     }
 
@@ -96,7 +100,11 @@ exports.updateClass = async (req, res) => {
 
     if (parsedContentList && Array.isArray(parsedContentList)) {
       parsedContentList.forEach((content, index) => {
-        content.image = images[index] || null;
+        const imageFieldName = `list_of_content[${index}]`;
+        const imageFile = req.files
+          ? req.files.find((image) => image.fieldname === imageFieldName)
+          : null;
+        content.image = imageFile ? imageFile.filename : null;
       });
     }
 
@@ -125,9 +133,7 @@ exports.updateClass = async (req, res) => {
 exports.deleteClass = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log(id);
     const class_object = await Classes.deleteClass(id);
-    console.log(class_object);
     if (class_object) {
       res.status(200).json({
         success: true,
