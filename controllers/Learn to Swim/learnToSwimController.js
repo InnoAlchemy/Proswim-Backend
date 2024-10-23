@@ -125,14 +125,8 @@ exports.getLearnToSwimSections = async (req, res) => {
 
 exports.addLearnToSwimSection = async (req, res) => {
   try {
-    console.log(req.files);
     const { level_id, title, markdown_text, list_of_content, is_active } =
       req.body;
-
-    const header_image = req.files
-      ? req.files.find((image) => image.fieldname === "header_image")
-      : null;
-    const header_image_name = header_image ? header_image.filename : null;
 
     const parsedContentList = list_of_content.map((content) =>
       typeof content === "string" ? JSON.parse(content) : content
@@ -153,7 +147,6 @@ exports.addLearnToSwimSection = async (req, res) => {
       title,
       markdown_text,
       parsedContentList,
-      header_image_name,
       is_active
     );
 
@@ -177,11 +170,6 @@ exports.updateLearnToSwimSection = async (req, res) => {
     const { level_id, title, markdown_text, list_of_content, is_active } =
       req.body;
 
-    const header_image = req.files
-      ? req.files.find((image) => image.fieldname === "header_image")
-      : null;
-    const header_image_name = header_image ? header_image.filename : null;
-
     const parsedContentList = list_of_content.map((content) =>
       typeof content === "string" ? JSON.parse(content) : content
     );
@@ -202,7 +190,6 @@ exports.updateLearnToSwimSection = async (req, res) => {
       title,
       markdown_text,
       parsedContentList,
-      header_image_name,
       is_active
     );
 

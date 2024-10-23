@@ -15,7 +15,7 @@ exports.getCartItems = async (req, res) => {
         ...rest,
         gender: {
           id: gender,
-          value: gender_title,
+          title: gender_title,
         },
         product: product ? product : null,
       };

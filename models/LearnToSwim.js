@@ -21,9 +21,6 @@ class LearnToSwim {
     );
     return newLevel[0];
   }
-  catch(err) {
-    throw err;
-  }
 
   static async updateLevel(id, title, markdown_text, header_image, is_active) {
     let query =
@@ -76,7 +73,6 @@ class LearnToSwim {
             level_id: row.level_id,
             title: row.title,
             markdown_text: row.markdown_text,
-            header_image: row.header_image,
             is_active: row.is_active,
             list_of_content: [],
           };
@@ -118,7 +114,6 @@ class LearnToSwim {
         level_id: rows[0].level_id,
         title: rows[0].title,
         markdown_text: rows[0].markdown_text,
-        header_image: rows[0].header_image,
         is_active: rows[0].is_active,
         list_of_content: rows
           .map((row) => ({
@@ -140,17 +135,15 @@ class LearnToSwim {
     title,
     markdown_text,
     list_of_content,
-    header_image,
     is_active
   ) {
     try {
       const query =
-        "INSERT INTO swim_sections (level_id, title, markdown_text, header_image, is_active) VALUES ( ?, ?, ?, ?, ?)";
+        "INSERT INTO swim_sections (level_id, title, markdown_text, is_active) VALUES ( ?, ?, ?, ?)";
       const [result] = await db.execute(query, [
         level_id,
         title,
         markdown_text,
-        header_image,
         is_active,
       ]);
 
@@ -170,7 +163,6 @@ class LearnToSwim {
         level_id,
         title,
         markdown_text,
-        header_image,
         is_active,
         list_of_content,
       };
@@ -185,17 +177,11 @@ class LearnToSwim {
     title,
     markdown_text,
     list_of_content,
-    header_image,
     is_active
   ) {
     let query =
       "UPDATE swim_sections SET level_id = ?, title = ?, markdown_text = ?, is_active = ?";
     const params = [level_id, title, markdown_text, is_active];
-
-    if (header_image !== null) {
-      query += ", header_image = ?";
-      params.push(header_image);
-    }
 
     query += " WHERE id = ?";
     params.push(id);
@@ -220,7 +206,6 @@ class LearnToSwim {
       level_id,
       title,
       markdown_text,
-      header_image,
       is_active,
       list_of_content,
     };
