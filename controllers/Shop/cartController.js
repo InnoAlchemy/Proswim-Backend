@@ -13,7 +13,10 @@ exports.getCartItems = async (req, res) => {
       const { product_id, gender, gender_title, ...rest } = item;
       return {
         ...rest,
-        gender: gender_title,
+        gender: {
+          id: gender,
+          value: gender_title,
+        },
         product: product ? product : null,
       };
     });
