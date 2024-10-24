@@ -48,7 +48,6 @@ exports.getProducts = async (req, res) => {
           updated_at: product.updated_at, // Update timestamp
         };
       });
-      console.log(products);
       res.status(200).json({
         success: true,
         message: "Products retrieved successfully.",
@@ -115,7 +114,6 @@ exports.getFormattedProducts = async () => {
 
 exports.addProduct = async (req, res) => {
   try {
-    console.log(req.body);
     const images = req.files || [];
     const {
       title,
@@ -191,9 +189,6 @@ exports.addProduct = async (req, res) => {
       generic: nullColorImages, // Uncolored images
       colored: coloredImages, // Colored images
     };
-
-    // Log the output in the desired format
-    console.log(combinedImages);
 
     const missingIds = await Product.checkIdsExist({
       categoryIds: parsedCategories,
@@ -353,9 +348,6 @@ exports.updateProduct = async (req, res) => {
       generic: nullColorImages, // Uncolored images
       colored: coloredImages, // Colored images
     };
-
-    // Log the output in the desired format
-    console.log(combinedImages);
 
     const missingIds = await Product.checkIdsExist({
       categoryIds: parsedCategories,
