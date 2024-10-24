@@ -51,3 +51,28 @@ exports.getFeedback = async (req, res) => {
     });
   }
 };
+
+exports.deleteFeedback = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const feedback = await Feedback.deleteFeedback(id);
+
+    if (!feedback) {
+      return res.status(404).json({
+        error: true,
+        message: "Feedback not found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Feedback deleted successfully.",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      error: true,
+      message: "Error deleting feedback.",
+    });
+  }
+};

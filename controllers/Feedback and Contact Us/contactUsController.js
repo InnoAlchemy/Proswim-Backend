@@ -46,3 +46,21 @@ exports.getContactUsFormSubmissions = async (req, res) => {
     });
   }
 };
+
+exports.deleteContactUsFormSubmission = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await ContactUs.deleteFormSubmission(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Contact Us form submission deleted successfully.",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      error: true,
+      message: "Error deleting Contact Us form submission.",
+    });
+  }
+};

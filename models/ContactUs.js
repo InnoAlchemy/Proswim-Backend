@@ -20,6 +20,14 @@ class ContactUs {
       throw err;
     }
   }
+
+  static async deleteFormSubmission(id) {
+    try {
+      await db.query("DELETE FROM contact_us WHERE id = ?", [id]);
+    } catch (err) {
+      throw err;
+    }
+  }
 }
 
 module.exports = ContactUs;

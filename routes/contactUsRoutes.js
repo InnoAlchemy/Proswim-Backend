@@ -5,5 +5,6 @@ const contactUsController = require("../controllers/Feedback and Contact Us/cont
 // Contact Us Routes
 router.post("/", contactUsController.submitContactUsForm);
 router.get("/", contactUsController.getContactUsFormSubmissions);
+router.delete("/:id", contactUsController.deleteContactUsFormSubmission);
 
 module.exports = router;

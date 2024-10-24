@@ -5,5 +5,6 @@ const feedbackController = require("../controllers/Feedback and Contact Us/feedb
 // Feedback Routes
 router.post("/", feedbackController.submitFeedback);
 router.get("/", feedbackController.getFeedback);
+router.delete("/:id", feedbackController.deleteFeedback);
 
 module.exports = router;

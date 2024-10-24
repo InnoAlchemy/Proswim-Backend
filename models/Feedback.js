@@ -25,6 +25,17 @@ class Feedback {
       throw err;
     }
   }
+
+  static async deleteFeedback(id) {
+    try {
+      const [result] = await db.query("DELETE FROM feedback WHERE id = ?", [
+        id,
+      ]);
+      return result.affectedRows > 0;
+    } catch (err) {
+      throw err;
+    }
+  }
 }
 
 module.exports = Feedback;
