@@ -13,7 +13,7 @@ exports.submitFeedback = async (req, res) => {
       email,
     });
 
-    const text = `User ID: ${name}\nSubject: ${subject}\nBody: ${body}\nEmail: ${email}`;
+    const text = `Name: ${name}\nSubject: ${subject}\nBody: ${body}\nEmail: ${email}`;
     await sendEmail(process.env.EMAIL_USER, subject, text);
 
     res.status(201).json({

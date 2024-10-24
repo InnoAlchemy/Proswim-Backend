@@ -27,7 +27,10 @@ class User {
 
   static async findById(id) {
     try {
-      const [rows] = await db.query("SELECT * FROM users WHERE id = ?", [id]);
+      const [rows] = await db.query(
+        "SELECT id, email, is_verified, role FROM users WHERE id = ?",
+        [id]
+      );
       return rows[0];
     } catch (err) {
       console.error(err);

@@ -6,7 +6,7 @@ exports.submitContactUsForm = async (req, res) => {
     const { name, subject, body, email } = req.body;
     await ContactUs.createFormSubmission(name, subject, body, email);
 
-    const text = `User ID: ${name}\nSubject: ${subject}\nBody: ${body}\nEmail: ${email}`;
+    const text = `Name: ${name}\nSubject: ${subject}\nBody: ${body}\nEmail: ${email}`;
 
     await sendEmail(process.env.EMAIL_USER, subject, text);
 
