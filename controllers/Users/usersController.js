@@ -33,7 +33,20 @@ exports.get_user_details = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.getAllUsers();
+    const { id } = req.query;
+    let users;
+    if (id) {
+      users = await User.findById(id);
+      if (!users) {
+        return res.status(404).json({
+          error: true,
+          message: "User not found.",
+        });
+      }
+      users = [users];
+    } else {
+      users = await User.getAllUsers();
+    }
     res.status(200).json({
       success: true,
       message: "Users retrieved successfully.",

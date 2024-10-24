@@ -418,7 +418,6 @@ class Product {
         WHERE 1=1
       `;
       const queryParams = [];
-      console.log(filters); //
 
       if (brand && brand.length > 0) {
         query += ` AND p.brand IN (${brand.map(() => "?").join(",")})`;
@@ -463,7 +462,6 @@ class Product {
       const checkIds = async (ids, tableName, key) => {
         if (ids.length > 0) {
           const idsToCheck = ids.map((id) => parseInt(id, 10));
-          console.log("Checking IDs in", tableName, ":", idsToCheck);
 
           const [rows] = await db.query(
             `SELECT id FROM ${tableName} WHERE id IN (${idsToCheck
