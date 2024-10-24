@@ -59,6 +59,6 @@ router.get("/orders", ordersController.getAllOrders);
 router.get("/get-order", ordersController.getOrder);
 router.get("/user-order", ordersController.getUserOrders);
 router.put("/orders/:id", ordersController.updateOrder);
-router.delete("/orders/:id", verifyToken, ordersController.deleteOrder);
+router.delete("/orders/:id", ordersController.deleteOrder);
 
 module.exports = router;
