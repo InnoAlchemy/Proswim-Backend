@@ -4,28 +4,42 @@ const router = express.Router();
 
 exports.getAboutUsCategories = async (req, res) => {
   try {
+    const { id } = req.query;
     const categories = await AboutUs.getAllCategories();
-    if (categories.length > 0) {
-      const formattedCategories = categories.map((category) => ({
+    const info = await AboutUs.getAllInfo();
+
+    let filteredCategories = categories;
+
+    if (id) {
+      filteredCategories = filteredCategories.filter(
+        (category) => category.id == id
+      );
+    }
+
+    const formattedCategories = filteredCategories.map((category) => {
+      const categoryInfo = info.filter(
+        (item) => item.category_id == category.id
+      );
+      return {
         id: category.id,
         title: category.title,
         markdown_text: category.markdown_text,
         header_image: category.header_image,
         is_active: category.is_active,
-      }));
+        info: categoryInfo.map((item) => ({
+          id: item.id,
+          markdown_text: item.markdown_text,
+          image: item.image,
+          type: item.type,
+        })),
+      };
+    });
 
-      res.status(200).json({
-        success: true,
-        message: "About Us categories retrieved successfully.",
-        data: formattedCategories,
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        message: "No About Us categories found.",
-        data: [],
-      });
-    }
+    res.status(200).json({
+      success: true,
+      message: "About Us categories retrieved successfully.",
+      data: formattedCategories,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Server error." });
@@ -72,8 +86,9 @@ exports.addAboutUsCategory = async (req, res) => {
 
 exports.updateAboutUsCategory = async (req, res) => {
   try {
-    const { id, title, markdown_text, is_active } = req.body;
+    const { title, markdown_text, is_active } = req.body;
     const header_image = req.file ? req.file.filename : null;
+    const { id } = req.params;
 
     const category = await AboutUs.updateCategory(
       id,
@@ -111,9 +126,7 @@ exports.updateAboutUsCategory = async (req, res) => {
 exports.deleteAboutUsCategory = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log(id);
     const category = await AboutUs.deleteCategory(id);
-    console.log(category);
     if (category) {
       res.status(200).json({
         success: true,
@@ -178,6 +191,7 @@ exports.addAboutUsInfo = async (req, res) => {
       data: [data],
     });
   } catch (error) {
+    console.log(error);
     res.status(404).json({
       error: true,
       message: "Error creating About Us info.",
@@ -187,7 +201,8 @@ exports.addAboutUsInfo = async (req, res) => {
 
 exports.updateAboutUsInfo = async (req, res) => {
   try {
-    const { id, category_id, markdown_text, type } = req.body;
+    const { category_id, markdown_text, type } = req.body;
+    const { id } = req.params;
     const image = req.file ? req.file.filename : null;
     const info = await AboutUs.updateInfo(
       id,
@@ -196,29 +211,18 @@ exports.updateAboutUsInfo = async (req, res) => {
       image,
       type
     );
-    if (info) {
-      const formattedInfo = {
-        id: info.id,
-        category_id: info.category_id,
-        markdown_text: info.markdown_text,
-        image: info.image,
-        type: info.type,
-      };
 
-      res.status(200).json({
-        success: true,
-        message: "About Us info updated successfully.",
-        data: formattedInfo,
-      });
-    } else {
-      res.status(404).json({
-        error: true,
-        message: "Error updating About Us info.",
-      });
-    }
+    res.status(200).json({
+      success: true,
+      message: "About Us info updated successfully.",
+      data: [info],
+    });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Server error." });
+    res.status(404).json({
+      error: true,
+      message: "Error updating About Us info.",
+    });
   }
 };
 

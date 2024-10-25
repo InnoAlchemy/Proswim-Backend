@@ -115,7 +115,7 @@ class AboutUs {
     try {
       const result = await db.query(
         "INSERT INTO about_us_information (category_id, markdown_text, image, type) VALUES (?, ?, ?, ?)",
-        [id, category_id, markdown_text, image, type]
+        [category_id, markdown_text, image, type]
       );
       const [newInfo] = await db.query(
         "SELECT * FROM about_us_information WHERE id = LAST_INSERT_ID()"
@@ -140,7 +140,6 @@ class AboutUs {
       params.push(id);
 
       const res = await db.query(query, params);
-      console.log(res);
       const [updatedInfo] = await db.query(
         "SELECT * FROM about_us_information WHERE id = ?",
         [id]

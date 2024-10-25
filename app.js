@@ -16,6 +16,7 @@ const contactUsRoutes = require("./routes/contactUsRoutes");
 const categoriesWithClassesRoutes = require("./routes/categoriesWithClassesRoutes");
 const feedbackAndContactUsRoutes = require("./routes/feedbackAndContactUsRoutes");
 const scheduleCallRoutes = require("./routes/scheduleCallRoutes");
+const emailRoutes = require("./routes/emailRoutes");
 
 const bodyParser = require("body-parser");
 
@@ -68,5 +69,7 @@ app.use("/feedback-and-contactus", feedbackAndContactUsRoutes);
 app.use("/users", usersRoutes);
 
 app.use("/schedule-call", scheduleCallRoutes);
+
+app.use("/email", emailRoutes);
 
 module.exports = app;

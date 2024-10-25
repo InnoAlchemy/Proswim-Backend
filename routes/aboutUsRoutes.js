@@ -18,7 +18,11 @@ router.delete("/categories/:id", aboutUsController.deleteAboutUsCategory);
 
 router.get("/info", upload.single("image"), aboutUsController.getAboutUsInfo);
 router.post("/info", upload.single("image"), aboutUsController.addAboutUsInfo);
-router.put("/info/:id", aboutUsController.updateAboutUsInfo);
+router.put(
+  "/info/:id",
+  upload.single("image"),
+  aboutUsController.updateAboutUsInfo
+);
 router.delete("/info/:id", aboutUsController.deleteAboutUsInfo);
 
 module.exports = router;
