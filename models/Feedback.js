@@ -1,15 +1,15 @@
 const db = require("../config/db");
 
 class Feedback {
-  static async createFeedback({ name, subject, body, email }) {
+  static async createFeedback({ name, subject, body, email, user_id }) {
     try {
       await db.query(
-        "INSERT INTO feedback (name, subject, body, email) VALUES (?, ?, ?, ?)",
-        [name, subject, body, email]
+        "INSERT INTO feedback (name, subject, body, email, user_id) VALUES (?, ?, ?, ?, ?)",
+        [name, subject, body, email, user_id]
       );
       const [newFeedback] = await db.query(
-        "SELECT * FROM feedback WHERE name = ? AND subject = ? AND body = ? AND email = ?",
-        [name, subject, body, email]
+        "SELECT * FROM feedback WHERE name = ? AND subject = ? AND body = ? AND email = ? AND user_id = ?",
+        [name, subject, body, email, user_id]
       );
       return newFeedback[0];
     } catch (err) {
