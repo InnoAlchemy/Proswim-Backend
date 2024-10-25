@@ -4,6 +4,7 @@ const aboutUsController = require("../controllers/About Us/aboutUsController");
 const upload = require("../helper/uploadHandler");
 
 router.get("/categories", aboutUsController.getAboutUsCategories);
+router.get("/categories/:id", aboutUsController.getAboutUsCategoriesAndInfo);
 router.post(
   "/categories",
   upload.single("header_image"),

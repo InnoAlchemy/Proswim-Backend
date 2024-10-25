@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 23, 2024 at 12:47 PM
+-- Generation Time: Oct 25, 2024 at 11:21 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -179,6 +179,7 @@ CREATE TABLE `class_contents` (
 
 CREATE TABLE `contact_us` (
   `id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
   `name` varchar(50) NOT NULL,
   `subject` varchar(255) NOT NULL,
   `body` text NOT NULL,
@@ -208,6 +209,7 @@ CREATE TABLE `core_values` (
 
 CREATE TABLE `feedback` (
   `id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
   `name` varchar(50) NOT NULL,
   `subject` varchar(255) NOT NULL,
   `body` text NOT NULL,
@@ -413,6 +415,22 @@ CREATE TABLE `product_info` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `schedule_calls`
+--
+
+CREATE TABLE `schedule_calls` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone_number` varchar(20) NOT NULL,
+  `date` datetime NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `social_links`
 --
 
@@ -459,7 +477,7 @@ CREATE TABLE `swim_levels` (
   `id` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
   `markdown_text` text DEFAULT NULL,
-  `header_image` varchar(255) DEFAULT NULL,
+  `header_image` varchar(255) NOT NULL,
   `is_active` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -677,6 +695,12 @@ ALTER TABLE `product_info`
   ADD KEY `product_id` (`product_id`);
 
 --
+-- Indexes for table `schedule_calls`
+--
+ALTER TABLE `schedule_calls`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `social_links`
 --
 ALTER TABLE `social_links`
@@ -868,6 +892,12 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT for table `product_colors`
 --
 ALTER TABLE `product_colors`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `schedule_calls`
+--
+ALTER TABLE `schedule_calls`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

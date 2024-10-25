@@ -4,7 +4,37 @@ const router = express.Router();
 
 exports.getAboutUsCategories = async (req, res) => {
   try {
-    const { id } = req.query;
+    const categories = await AboutUs.getAllCategories();
+    if (categories.length > 0) {
+      const formattedCategories = categories.map((category) => ({
+        id: category.id,
+        title: category.title,
+        markdown_text: category.markdown_text,
+        header_image: category.header_image,
+        is_active: category.is_active,
+      }));
+
+      res.status(200).json({
+        success: true,
+        message: "About Us categories retrieved successfully.",
+        data: formattedCategories,
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: "No About Us categories found.",
+        data: [],
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
+
+exports.getAboutUsCategoriesAndInfo = async (req, res) => {
+  try {
+    const { id } = req.params;
     const categories = await AboutUs.getAllCategories();
     const info = await AboutUs.getAllInfo();
 
