@@ -15,6 +15,8 @@ const feebackRoutes = require("./routes/feedbackRoutes");
 const contactUsRoutes = require("./routes/contactUsRoutes");
 const categoriesWithClassesRoutes = require("./routes/categoriesWithClassesRoutes");
 const feedbackAndContactUsRoutes = require("./routes/feedbackAndContactUsRoutes");
+const scheduleCallRoutes = require("./routes/scheduleCallRoutes");
+
 const bodyParser = require("body-parser");
 
 const usersRoutes = require("./routes/usersRoutes");
@@ -64,5 +66,7 @@ app.use("/contact-us", contactUsRoutes);
 app.use("/feedback-and-contactus", feedbackAndContactUsRoutes);
 
 app.use("/users", usersRoutes);
+
+app.use("/schedule-call", scheduleCallRoutes);
 
 module.exports = app;
