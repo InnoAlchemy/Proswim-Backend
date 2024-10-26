@@ -41,13 +41,16 @@ exports.createOrder = async (req, res) => {
 
 exports.getAllOrders = async (req, res) => {
   try {
+    // Fetch all orders and formatted products
     const orders = await Order.getAllOrders();
     const products = await Products.getFormattedProducts();
 
+    // Map through each order and its products
     const modifiedOrders = orders.map((order) => {
       const modifiedProducts = order.products.map((item) => {
+        // Find matching product in formattedProducts by id
         const product = products.formattedProducts.find(
-          (p) => p.id === item.id
+          (p) => p.id == item.product_id
         );
         return {
           ...item,
@@ -60,6 +63,7 @@ exports.getAllOrders = async (req, res) => {
       };
     });
 
+    // Send a successful response
     res.status(200).json({
       success: true,
       message: "All orders retrieved successfully.",
@@ -67,12 +71,14 @@ exports.getAllOrders = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    // Send an error response
     res.status(400).json({
       error: true,
       message: "Error retrieving all orders.",
     });
   }
 };
+
 exports.getUserOrders = async (req, res) => {
   try {
     const { user_id } = req.query;
@@ -88,7 +94,6 @@ exports.getUserOrders = async (req, res) => {
         const product = products.formattedProducts.find(
           (p) => p.id == item.product_id
         );
-        console.log(products);
         return {
           ...item,
           product_information: product || null, // Return product or null if not found
@@ -127,8 +132,9 @@ exports.getOrder = async (req, res) => {
     const modifiedOrders = orders.map((order) => {
       const modifiedProducts = order.products.map((item) => {
         const product = products.formattedProducts.find(
-          (p) => p.id === item.id
+          (p) => p.id == item.product_id
         );
+
         return {
           ...item,
           product_information: product ? product : null,
