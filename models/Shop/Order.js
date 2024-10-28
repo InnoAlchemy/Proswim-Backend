@@ -6,12 +6,13 @@ class Order {
     try {
       await connection.beginTransaction();
 
-      const { user_id, status, products, currency, address } = orderData;
+      const { user_id, status, products, currency, address, user_name } =
+        orderData;
 
       // Insert the order first
       const order = await connection.query(
-        "INSERT INTO orders (user_id, total_price, currency, status, address) VALUES (?, ?, ?, ?, ?)",
-        [user_id, 0, currency, status, address] // total_price is set to 0 initially
+        "INSERT INTO orders (user_id, user_name, total_price, currency, status, address) VALUES (?, ?, ?, ?, ?, ?)",
+        [user_id, user_name, 0, currency, status, address] // total_price is set to 0 initially
       );
       const id = order[0].insertId;
 

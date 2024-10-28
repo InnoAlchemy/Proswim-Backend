@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 25, 2024 at 11:21 PM
+-- Generation Time: Oct 28, 2024 at 03:48 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -278,6 +278,7 @@ CREATE TABLE `lts_buttons` (
 CREATE TABLE `orders` (
   `order_id` int(11) NOT NULL,
   `user_id` varchar(50) DEFAULT NULL,
+  `user_name` varchar(255) NOT NULL,
   `status` enum('pending','shipped','in_transit','delivered','completed','canceled') DEFAULT 'pending',
   `address` varchar(255) DEFAULT NULL,
   `total_price` decimal(10,0) DEFAULT NULL,

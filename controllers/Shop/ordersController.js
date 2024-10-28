@@ -3,13 +3,14 @@ const Products = require("./productsController");
 
 exports.createOrder = async (req, res) => {
   try {
-    const { products, status, currency, address } = req.body;
+    const { products, status, currency, address, user_name } = req.body;
     const user_id = req.userId;
     const parsedProducts =
       typeof products === "string" ? JSON.parse(products) : products;
 
     const orderData = {
       user_id,
+      user_name,
       status,
       address,
       currency,
@@ -163,7 +164,7 @@ exports.getOrder = async (req, res) => {
 exports.updateOrder = async (req, res) => {
   try {
     const { id } = req.params;
-    const { products, status, currency, address } = req.body;
+    const { products, status, currency, address, user_name } = req.body;
     const parsedProducts =
       typeof products === "string" ? JSON.parse(products) : products;
 

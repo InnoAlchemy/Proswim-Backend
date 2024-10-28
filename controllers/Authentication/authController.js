@@ -25,17 +25,15 @@ exports.signup = async (req, res) => {
       role
     );
 
-    if (newUser) {
-      res.status(201).json({
-        success: true,
-        message: "User signed up successfully.",
-        data: { userId: newUser.id },
-      });
-    } else {
-      res.status(500).json({ message: "User was not registered." });
-    }
+    const user = await User.findById(newUser);
+
+    res.status(201).json({
+      success: true,
+      message: "User signed up successfully.",
+      data: { userId: user.id },
+    });
   } catch (error) {
-    res.status(500).json({ message: "Server error." });
+    res.status(400).json({ message: "User was not registered." });
   }
 };
 
