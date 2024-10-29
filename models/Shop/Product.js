@@ -404,88 +404,132 @@ class Product {
 
   static async filterProducts(filters) {
     try {
-      const { brand, sport, category, gender } = filters;
       let query = `
-        SELECT 
-          p.*, 
-          GROUP_CONCAT(DISTINCT c.category_id) AS categories, 
-          GROUP_CONCAT(DISTINCT col.color_id) AS colors, 
-          GROUP_CONCAT(DISTINCT g.gender_id) AS genders
-        FROM products p
-        LEFT JOIN product_categories c ON p.id = c.product_id
-        LEFT JOIN product_colors col ON p.id = col.product_id
-        LEFT JOIN product_genders g ON p.id = g.product_id
-        WHERE 1=1
-      `;
-      const queryParams = [];
+            SELECT 
+                p.*, 
+                b.id AS brand_id,
+                b.title AS brand,
+                s.id AS sport_id,
+                s.title AS sport,
+                CONCAT('[', GROUP_CONCAT(DISTINCT JSON_OBJECT('title', pi.title, 'description', pi.description)), ']') AS product_info
+            FROM products p
+            LEFT JOIN product_categories pc2 ON p.id = pc2.product_id
+            LEFT JOIN categories cat ON pc2.category_id = cat.id
+            LEFT JOIN product_genders pg ON p.id = pg.product_id
+            LEFT JOIN genders g ON pg.gender_id = g.id
+            LEFT JOIN product_colors pc ON p.id = pc.product_id
+            LEFT JOIN brands b ON p.brand = b.id
+            LEFT JOIN sports s ON p.sport = s.id
+            LEFT JOIN product_info pi ON p.id = pi.product_id
+        `;
 
-      if (brand && brand.length > 0) {
-        query += ` AND p.brand IN (${brand.map(() => "?").join(",")})`;
-        queryParams.push(...brand);
+      const queryParams = [];
+      const conditions = [];
+
+      if (filters.brand) {
+        conditions.push("p.brand = ?");
+        queryParams.push(filters.brand);
       }
-      if (sport && sport.length > 0) {
-        query += ` AND p.sport IN (${sport.map(() => "?").join(",")})`;
-        queryParams.push(...sport);
+
+      if (filters.sport) {
+        conditions.push("p.sport = ?");
+        queryParams.push(filters.sport);
       }
-      if (category && category.length > 0) {
-        query += ` AND c.category_id IN (${category.map(() => "?").join(",")})`;
-        queryParams.push(...category);
+
+      if (filters.categories && filters.categories.length > 0) {
+        const validCategories = filters.categories
+          .map(Number)
+          .filter((catId) => !isNaN(catId));
+        if (validCategories.length > 0) {
+          conditions.push("pc2.category_id IN (?)");
+          queryParams.push(validCategories);
+        }
       }
-      if (gender && gender.length > 0) {
-        query += ` AND g.gender_id IN (${gender.map(() => "?").join(",")})`;
-        queryParams.push(...gender);
+
+      if (filters.genders && filters.genders.length > 0) {
+        const validGenders = filters.genders
+          .map(Number)
+          .filter((genderId) => !isNaN(genderId));
+        if (validGenders.length > 0) {
+          conditions.push("pg.gender_id IN (?)");
+          queryParams.push(validGenders);
+        } else {
+          // Prevent adding an undefined value if no valid genders are present
+          conditions.push("pg.gender_id IS NULL");
+        }
+      } else {
+        // No genders specified, consider as null
+        conditions.push("pg.gender_id IS NULL");
+      }
+
+      if (conditions.length > 0) {
+        query += " WHERE " + conditions.join(" AND ");
       }
 
       query += " GROUP BY p.id";
 
       const [rows] = await db.query(query, queryParams);
-      return rows;
+
+      if (rows.length === 0) {
+        return []; // No products found
+      }
+
+      const productIds = rows.map((row) => row.id);
+
+      const [categories] = await db.query(
+        `
+            SELECT pc2.product_id, cat.id AS category_id, cat.title AS category_title
+            FROM product_categories pc2
+            JOIN categories cat ON pc2.category_id = cat.id
+            WHERE pc2.product_id IN (?)
+            `,
+        [productIds]
+      );
+
+      if (categories.length === 0) {
+        return rows.map((product) => ({
+          ...product,
+          categories: [],
+          genders: [],
+        }));
+      }
+
+      const [genders] = await db.query(
+        `
+            SELECT pg.product_id, g.id AS gender_id, g.title AS gender_title
+            FROM product_genders pg
+            JOIN genders g ON pg.gender_id = g.id
+            WHERE pg.product_id IN (?)
+            `,
+        [productIds]
+      );
+
+      if (genders.length === 0) {
+        return rows.map((product) => ({
+          ...product,
+          categories: categories
+            .filter((cat) => cat.product_id === product.id)
+            .map((cat) => ({ id: cat.category_id, title: cat.category_title })),
+          genders: [],
+        }));
+      }
+
+      const products = rows.map((product) => {
+        return {
+          ...product,
+          categories: categories
+            .filter((cat) => cat.product_id === product.id)
+            .map((cat) => ({ id: cat.category_id, title: cat.category_title })),
+          genders: genders
+            .filter((gen) => gen.product_id === product.id)
+            .map((gen) => ({ id: gen.gender_id, title: gen.gender_title })),
+        };
+      });
+
+      return products;
     } catch (err) {
-      throw err;
-    }
-  }
-
-  static async checkIdsExist({
-    categoryIds = [],
-    brandIds = [],
-    sportIds = [],
-    genderIds = [],
-  }) {
-    try {
-      const missing = {
-        categories: [],
-        brands: [],
-        sports: [],
-        genders: [],
-      };
-
-      const checkIds = async (ids, tableName, key) => {
-        if (ids.length > 0) {
-          const idsToCheck = ids.map((id) => parseInt(id, 10));
-
-          const [rows] = await db.query(
-            `SELECT id FROM ${tableName} WHERE id IN (${idsToCheck
-              .map(() => "?")
-              .join(",")})`,
-            idsToCheck
-          );
-
-          const foundIds = new Set(rows.map((row) => row.id));
-          missing[key] = idsToCheck.filter((id) => !foundIds.has(id));
-        }
-      };
-
-      await Promise.all([
-        checkIds(categoryIds, "categories", "categories"),
-        checkIds(brandIds, "brands", "brands"),
-        checkIds(sportIds, "sports", "sports"),
-        checkIds(genderIds, "genders", "genders"),
-      ]);
-
-      return missing;
-    } catch (err) {
-      console.error("Error checking IDs:", err);
-      throw new Error("Failed to check IDs");
+      console.error("Error filtering products:", err);
+      throw new Error("An error occurred while filtering products.");
     }
   }
 }

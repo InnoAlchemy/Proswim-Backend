@@ -17,35 +17,35 @@ exports.getProducts = async (req, res) => {
     if (products.length > 0) {
       const formattedProducts = products.map((product) => {
         return {
-          id: product.id, // Product ID
-          title: product.title, // Title
-          description: product.description, // Description
+          id: product.id,
+          title: product.title,
+          description: product.description,
           brand: {
             id: product.brand_id,
             title: product.brand,
-          }, // Include brand
+          },
           sport: {
             id: product.sport_id,
             title: product.sport,
           },
-          stock: product.stock, // Stock quantity
-          categories: product.categories, // Include categories (assuming stored as strings)
-          genders: product.genders, // Include genders (assuming stored as strings)
-          product_info: JSON.parse(product.product_info), // Correctly parse product_info as JSON
-          sizes: JSON.parse(product.sizes), // Parse sizes as an array
-          images: JSON.parse(product.images), // Parse images array
+          stock: product.stock,
+          categories: product.categories,
+          genders: product.genders,
+          product_info: JSON.parse(product.product_info),
+          sizes: JSON.parse(product.sizes),
+          images: JSON.parse(product.images),
           price: [
             {
               currency: "lbp",
-              value: product.price_lbp, // LBP price
+              value: product.price_lbp,
             },
             {
               currency: "usd",
-              value: product.price_usd, // USD price
+              value: product.price_usd,
             },
           ],
-          created_at: product.created_at, // Creation timestamp
-          updated_at: product.updated_at, // Update timestamp
+          created_at: product.created_at,
+          updated_at: product.updated_at,
         };
       });
       res.status(200).json({
@@ -71,7 +71,7 @@ exports.getFormattedProducts = async () => {
     const products = await Product.getAllProducts();
     if (products.length > 0) {
       const formattedProducts = products.map((product) => {
-        const { price_lbp, price_usd, ...rest } = product; // Destructure to remove price_lbp and price_usd
+        const { price_lbp, price_usd, ...rest } = product;
         return {
           id: product.id,
           title: product.title,
@@ -128,7 +128,7 @@ exports.addProduct = async (req, res) => {
       sizes,
       images: bodyImages,
     } = req.body;
-    // Parse fields if necessary
+
     const parsedGenders =
       typeof genders === "string" ? JSON.parse(genders) : genders;
     const parsedCategories =
@@ -139,13 +139,11 @@ exports.addProduct = async (req, res) => {
     const priceInLBP = parsedPrice.find((p) => p.currency === "lbp")?.value;
     const priceInUSD = parsedPrice.find((p) => p.currency === "usd")?.value;
 
-    // Initialize Map for image grouping and Set for tracking assigned images
     const allImagesMap = new Map();
     const assignedImages = new Set();
 
-    // Loop through body images and group them by their colors
     bodyImages.forEach((bodyImage, index) => {
-      const color = bodyImage.color || null; // Default to null if no color
+      const color = bodyImage.color || null;
       const imageFilenames = images
         .filter((file) => file.fieldname === `images[${index}][image]`)
         .map((file) => file.filename);
@@ -159,14 +157,12 @@ exports.addProduct = async (req, res) => {
       }
     });
 
-    // Prepare separate arrays for colored and null color images
     const coloredImages = [];
     const nullColorImages = [];
 
-    // Populate the colored and null color arrays
     allImagesMap.forEach((image, color) => {
       if (color === null) {
-        nullColorImages.push(...image); // Directly push images to nullColorImages
+        nullColorImages.push(...image);
       } else {
         coloredImages.push({
           color,
@@ -175,19 +171,17 @@ exports.addProduct = async (req, res) => {
       }
     });
 
-    // Add any images that haven't been assigned to a color to nullColorImages
     const unassignedImages = images
       .filter((file) => !assignedImages.has(file.filename))
       .map((file) => file.filename);
 
     if (unassignedImages.length > 0) {
-      nullColorImages.push(...unassignedImages); // Directly push images to nullColorImages
+      nullColorImages.push(...unassignedImages);
     }
 
-    // Combine coloredImages and nullColorImages into the desired output format
     const combinedImages = {
-      generic: nullColorImages, // Uncolored images
-      colored: coloredImages, // Colored images
+      generic: nullColorImages,
+      colored: coloredImages,
     };
 
     const missingIds = await Product.checkIdsExist({
@@ -237,7 +231,6 @@ exports.addProduct = async (req, res) => {
         categories: [product.categories],
         genders: [product.genders],
         sizes: JSON.parse(`[${product.sizes}]`),
-
         images: JSON.parse(product.images),
         price: [
           {
@@ -286,7 +279,6 @@ exports.updateProduct = async (req, res) => {
 
     const { id } = req.params;
 
-    // Parse fields if necessary
     const parsedGenders =
       typeof genders === "string" ? JSON.parse(genders) : genders;
     const parsedCategories =
@@ -298,13 +290,11 @@ exports.updateProduct = async (req, res) => {
     const priceInLBP = parsedPrice.find((p) => p.currency === "lbp")?.value;
     const priceInUSD = parsedPrice.find((p) => p.currency === "usd")?.value;
 
-    // Initialize Map for image grouping and Set for tracking assigned images
     const allImagesMap = new Map();
     const assignedImages = new Set();
 
-    // Loop through body images and group them by their colors
     bodyImages.forEach((bodyImage, index) => {
-      const color = bodyImage.color || null; // Default to null if no color
+      const color = bodyImage.color || null;
       const imageFilenames = images
         .filter((file) => file.fieldname === `images[${index}][image]`)
         .map((file) => file.filename);
@@ -318,14 +308,12 @@ exports.updateProduct = async (req, res) => {
       }
     });
 
-    // Prepare separate arrays for colored and null color images
     const coloredImages = [];
     const nullColorImages = [];
 
-    // Populate the colored and null color arrays
     allImagesMap.forEach((image, color) => {
       if (color === null) {
-        nullColorImages.push(...image); // Directly push images to nullColorImages
+        nullColorImages.push(...image);
       } else {
         coloredImages.push({
           color,
@@ -334,19 +322,17 @@ exports.updateProduct = async (req, res) => {
       }
     });
 
-    // Add any images that haven't been assigned to a color to nullColorImages
     const unassignedImages = images
       .filter((file) => !assignedImages.has(file.filename))
       .map((file) => file.filename);
 
     if (unassignedImages.length > 0) {
-      nullColorImages.push(...unassignedImages); // Directly push images to nullColorImages
+      nullColorImages.push(...unassignedImages);
     }
 
-    // Combine coloredImages and nullColorImages into the desired output format
     const combinedImages = {
-      generic: nullColorImages, // Uncolored images
-      colored: coloredImages, // Colored images
+      generic: nullColorImages,
+      colored: coloredImages,
     };
 
     const missingIds = await Product.checkIdsExist({
@@ -397,7 +383,6 @@ exports.updateProduct = async (req, res) => {
         categories: [product.categories],
         genders: [product.genders],
         sizes: JSON.parse(`[${product.sizes}]`),
-
         images: JSON.parse(product.images),
         price: [
           {
@@ -453,39 +438,130 @@ exports.deleteProduct = async (req, res) => {
 
 exports.filterProducts = async (req, res) => {
   try {
-    const filters = ({ brand, sport, categories, genders, sortBy, sortOrder } =
-      req.query);
+    const {
+      id,
+      brand,
+      sport,
+      categories,
+      genders,
+      sizes,
+      colors,
+      sortBy,
+      sortOrder,
+    } = req.query;
 
-    const filteredProducts = await Product.filterProducts(filters);
-    if (filteredProducts.length > 0) {
-      const formattedProducts = filteredProducts.map((product) => ({
-        ...product,
-        categories: [product.categories],
-        colors: [product.colors],
-        genders: [product.genders],
-        images: JSON.parse(product.images),
-      }));
+    console.log(req.query);
+    let products;
 
-      if (sortBy) {
-        formattedProducts.sort((a, b) => {
-          if (sortBy === "alphabetical") {
-            return sortOrder === "desc"
-              ? b.title.localeCompare(a.title)
-              : a.title.localeCompare(b.title);
-          } else if (sortBy === "price") {
-            return sortOrder === "desc" ? b.price - a.price : a.price - b.price;
-          } else if (sortBy === "date") {
-            return sortOrder === "desc"
-              ? new Date(b.createdAt) - new Date(a.createdAt)
-              : new Date(a.createdAt) - new Date(b.createdAt);
-          }
-          return 0;
+    if (id) {
+      const product = await Product.getProductById(id);
+      products = product ? [product] : [];
+    } else {
+      products = await Product.getAllProducts();
+    }
+
+    if (products.length > 0) {
+      if (brand) {
+        products = products.filter(
+          (product) => product.brand_id === parseInt(brand)
+        );
+      }
+      if (sport) {
+        products = products.filter(
+          (product) => product.sport_id === parseInt(sport)
+        );
+      }
+      if (categories) {
+        const categorySet = new Set(categories.map(String));
+        products = products.filter((product) =>
+          product.categories.some((category) =>
+            categorySet.has(String(category.id))
+          )
+        );
+      }
+      if (genders) {
+        const genderSet = new Set(genders.map(String));
+        products = products.filter((product) =>
+          product.genders.some((gender) => genderSet.has(String(gender.id)))
+        );
+      }
+
+      if (sizes) {
+        const sizeSet = new Set(sizes.map(String));
+        products = products.filter((product) =>
+          product.sizes.some((size) => sizeSet.has(String(size)))
+        );
+      }
+
+      if (colors) {
+        const colorSet = new Set(
+          colors.map((color) => color.trim().toLowerCase())
+        );
+        console.log(colorSet);
+
+        products = products.filter((product) => {
+          return (
+            (product.imgs = JSON.parse(product.images)),
+            product.imgs &&
+              product.imgs.colored &&
+              product.imgs.colored.some((colored) =>
+                colorSet.has(colored.color.trim().toLowerCase())
+              )
+          );
         });
       }
 
+      if (sortBy) {
+        products.sort((a, b) => {
+          let comparison = 0;
+
+          if (sortBy === "price") {
+            comparison = a.price_lbp - b.price_lbp;
+          } else {
+            comparison = a[sortBy] > b[sortBy] ? 1 : -1;
+          }
+
+          return sortOrder === "asc" ? comparison : -comparison;
+        });
+      }
+
+      const formattedProducts = products.map((product) => {
+        return {
+          id: product.id,
+          title: product.title,
+          description: product.description,
+          brand: {
+            id: product.brand_id,
+            title: product.brand,
+          },
+          sport: {
+            id: product.sport_id,
+            title: product.sport,
+          },
+          stock: product.stock,
+          categories: product.categories,
+          genders: product.genders,
+          product_info: JSON.parse(product.product_info),
+          sizes: JSON.parse(product.sizes),
+          images: JSON.parse(product.images),
+          price: [
+            {
+              currency: "lbp",
+              value: product.price_lbp,
+            },
+            {
+              currency: "usd",
+              value: product.price_usd,
+            },
+          ],
+          created_at: product.created_at,
+          updated_at: product.updated_at,
+        };
+      });
+
       res.status(200).json({
         success: true,
-        message: "Filtered products retrieved successfully.",
+        message: "Products filtered and sorted successfully.",
         data: formattedProducts,
       });
     } else {
