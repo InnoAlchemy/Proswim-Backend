@@ -385,6 +385,7 @@ class Product {
 
   static async deleteProduct(id) {
     try {
+      await db.query("DELETE FROM product_info WHERE product_id = ?", [id]);
       await db.query("DELETE FROM product_genders WHERE product_id = ?", [id]);
       await db.query("DELETE FROM product_colors WHERE product_id = ?", [id]);
       await db.query("DELETE FROM product_categories WHERE product_id = ?", [
