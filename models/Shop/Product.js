@@ -399,6 +399,9 @@ class Product {
         return true;
       }
     } catch (err) {
+      if (err.code === "ER_ROW_IS_REFERENCED_2") {
+        return false;
+      }
       throw err;
     }
   }

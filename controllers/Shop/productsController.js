@@ -427,7 +427,8 @@ exports.deleteProduct = async (req, res) => {
     } else {
       res.status(400).json({
         error: true,
-        message: "Error deleting product.",
+        message:
+          "Error deleting product - Product may be exsiting in a past order or a cart",
       });
     }
   } catch (error) {
