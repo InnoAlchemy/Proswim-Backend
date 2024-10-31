@@ -127,6 +127,7 @@ exports.addLearnToSwimSection = async (req, res) => {
   try {
     const { level_id, title, markdown_text, list_of_content, is_active } =
       req.body;
+    console.log(req.body);  
 
     const parsedContentList = list_of_content.map((content) =>
       typeof content === "string" ? JSON.parse(content) : content

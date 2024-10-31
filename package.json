@@ -1,10 +1,11 @@
 {
   "name": "proswim",
   "version": "1.0.0",
-  "description": "",
+  "description": "- [Prerequisites](#prerequisites)\r - [Project Structure](#project-structure)\r - [Installation](#installation)\r - [Configuration](#configuration)\r - [Running the Application](#running-the-application)\r - [Database Setup](#database-setup)\r - [Usage](#usage)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -21,5 +22,6 @@
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.11.2",
     "nodemailer": "^6.9.15"
-  }
+  },
+  "devDependencies": {}
 }
