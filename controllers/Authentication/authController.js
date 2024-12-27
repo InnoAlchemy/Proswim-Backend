@@ -58,7 +58,7 @@ exports.signin = async (req, res) => {
     res.json({
       success: true,
       message: "User signed in successfully.",
-      data: { token },
+      data: {  userId: user.id  },
     });
   } catch (error) {
     res.status(500).json({ message: "Server error." });

@@ -17,7 +17,7 @@ const categoriesWithClassesRoutes = require("./routes/categoriesWithClassesRoute
 const feedbackAndContactUsRoutes = require("./routes/feedbackAndContactUsRoutes");
 const scheduleCallRoutes = require("./routes/scheduleCallRoutes");
 const emailRoutes = require("./routes/emailRoutes");
-
+const productRoutes = require('./models/Shop/uploadExcel');
 const bodyParser = require("body-parser");
 
 const usersRoutes = require("./routes/usersRoutes");
@@ -70,5 +70,7 @@ app.use("/users", usersRoutes);
 app.use("/schedule-call", scheduleCallRoutes);
 
 app.use("/email", emailRoutes);
+
+app.use('/products', productRoutes);
 
 module.exports = app;
