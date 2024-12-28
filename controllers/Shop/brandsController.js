@@ -37,7 +37,8 @@ exports.addBrand = async (req, res) => {
 
 exports.updateBrand = async (req, res) => {
   try {
-    const { id, title, is_active } = req.body;
+    const id = req.params.id;
+    const { title, is_active } = req.body;
     const brand = await Brand.updateBrand(id, title, is_active);
     res.status(200).json({
       success: true,
